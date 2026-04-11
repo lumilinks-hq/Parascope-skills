@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エラーメッセージカタログ — After（改善パターン集）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       AFTER: zen-clarify スキル適用後のエラーメッセージ
+
+       改善ポイント:
+       - 「原因 + 対処法」の構造で伝える
+       - 技術用語を避け、平易な日本語に
+       - 温かいが媚びないトーン
+       - 行き止まりをなくす（リンク・ボタン・検索）
+       - 具体例や数値を添えて対処しやすくする
+       - 空状態にCTAとガイドを置く
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Noto Sans JP", "Inter", sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #1a1a1a;
+      background: #f5f5f5;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 24px 32px;
+    }
+
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .badge-after {
+      display: inline-block;
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* メインコンテンツ */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* セクション */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      font-weight: 400;
+      color: #999;
+      margin-left: 8px;
+    }
+
+    /* カード */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    /* エラーメッセージの表示エリア */
+    .error-display {
+      background: #fafafa;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* フォーム風の表示 */
+    .mock-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mock-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mock-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .mock-input {
+      border: 1px solid #f97316;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      outline: none;
+    }
+
+    .mock-input-normal {
+      border-color: #d1d5db;
+    }
+
+    .mock-input::placeholder {
+      color: #ccc;
+    }
+
+    /* 改善: エラーの色をオレンジ寄りに（赤は「危険」を強調しすぎる） */
+    .field-error {
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .field-hint {
+      color: #78716c;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* 全画面エラー風の表示 */
+    .fullscreen-error {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .fullscreen-error .error-code {
+      font-size: 48px;
+      font-weight: 700;
+      color: #d97706;
+      line-height: 1;
+    }
+
+    .fullscreen-error .error-message {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-top: 12px;
+    }
+
+    .fullscreen-error .error-detail {
+      font-size: 13px;
+      color: #78716c;
+      margin-top: 8px;
+      line-height: 1.7;
+    }
+
+    .fullscreen-error .error-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ボタン */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .btn-primary {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #333;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #1a1a1a;
+      border: 1px solid #e5e5e5;
+    }
+
+    .btn-secondary:hover {
+      background: #eee;
+    }
+
+    .btn-ghost {
+      background: none;
+      color: #2563eb;
+      padding: 8px 4px;
+    }
+
+    .btn-ghost:hover {
+      text-decoration: underline;
+    }
+
+    /* 検索フォーム */
+    .mini-search {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .mini-search input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .mini-search input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    /* 空状態 */
+    .empty-state {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .empty-detail {
+      font-size: 13px;
+      color: #78716c;
+      margin-top: 6px;
+      line-height: 1.7;
+    }
+
+    .empty-actions {
+      margin-top: 16px;
+    }
+
+    /* インラインアラート（改善版） */
+    .alert-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .alert-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      color: #92400e;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .alert-detail {
+      color: #a16207;
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.6;
+    }
+
+    .alert-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-alert {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: #f59e0b;
+      color: #fff;
+    }
+
+    .btn-alert:hover {
+      background: #d97706;
+    }
+
+    .btn-alert-secondary {
+      background: transparent;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .btn-alert-secondary:hover {
+      background: #fef3c7;
+    }
+
+    /* 検索結果の改善版 */
+    .search-keyword {
+      display: inline-block;
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .suggestion-list {
+      list-style: none;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .suggestion-list li {
+      font-size: 13px;
+      color: #78716c;
+      padding: 4px 0;
+      line-height: 1.6;
+    }
+
+    .suggestion-list li::before {
+      content: "💡";
+      margin-right: 6px;
+    }
+
+    /* 注釈 */
+    .annotation {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #f0fdf4;
+      border-left: 3px solid #22c55e;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #166534;
+      line-height: 1.7;
+    }
+
+    .annotation strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* リンク風テキスト */
+    .text-link {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    /* 対処リスト */
+    .remedy-list {
+      list-style: none;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #a16207;
+    }
+
+    .remedy-list li {
+      padding: 3px 0;
+      line-height: 1.5;
+    }
+
+    .remedy-list li::before {
+      content: "→ ";
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="page-header">
+    <h1>エラーメッセージカタログ <span class="badge-after">After</span></h1>
+    <p>zen-clarify スキル適用後 — 原因 + 対処法の構造で改善</p>
+  </div>
+
+  <div class="container">
+
+    <!-- ========================================
+         セクション 1: フォームバリデーション
+         改善: 具体例・文字数・対処法を添える
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">フォームバリデーション <span>— 具体例と対処法を添える</span></h2>
+      <div class="card-grid">
+
+        <!-- 必須エラー（改善） -->
+        <div class="card">
+          <div class="card-label">必須フィールド</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">お名前</span>
+              <input type="text" class="mock-input" value="" placeholder="" disabled>
+              <!--
+                改善ポイント:
+                - Before: 「必須です」
+                - After:  「お名前を入力してください」— 何を入力すべきか具体的
+              -->
+              <span class="field-error">お名前を入力してください</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「必須です」→「お名前を入力してください」。フィールド名を含めて、何が必要か明確にした。
+          </div>
+        </div>
+
+        <!-- メール形式エラー（改善） -->
+        <div class="card">
+          <div class="card-label">メールアドレスの形式</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">メールアドレス</span>
+              <input type="text" class="mock-input" value="taro.yamada" disabled>
+              <!--
+                改善ポイント:
+                - Before: 「不正な形式です」
+                - After:  形式の確認を促す + 具体例を表示
+                - 「不正」→「確認してください」に変更（攻撃性を排除）
+              -->
+              <span class="field-error">メールアドレスの形式を確認してください</span>
+              <span class="field-hint">例: name@example.com</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「不正な形式です」→「形式を確認してください」+例示。攻撃的な「不正」を排除し、正しい形式を見せて自己解決を促す。
+          </div>
+        </div>
+
+        <!-- 文字数オーバー（改善） -->
+        <div class="card">
+          <div class="card-label">文字数制限</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">自己紹介 <span style="font-size:11px;color:#999;font-weight:400">200文字以内</span></span>
+              <input type="text" class="mock-input" value="私はデザイナーで..." disabled>
+              <!--
+                改善ポイント:
+                - Before: 「文字数オーバー」
+                - After:  現在の文字数と上限を明示
+              -->
+              <span class="field-error">現在 243 文字です。200 文字以内に短くしてください</span>
+              <span class="field-hint">あと 43 文字減らす必要があります</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「文字数オーバー」→具体的な数値（現在243文字 / 上限200文字 / あと43文字）。ユーザーが対処量を見積もれる。
+          </div>
+        </div>
+
+        <!-- パスワード不一致（改善） -->
+        <div class="card">
+          <div class="card-label">パスワード確認</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">パスワード（確認）</span>
+              <input type="password" class="mock-input" value="••••••••" disabled>
+              <!--
+                改善ポイント:
+                - Before: 「一致しません」
+                - After:  何と一致しないかを明示 + 対処法
+              -->
+              <span class="field-error">上のパスワードと一致しません。もう一度入力してください</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「一致しません」→「上のパスワードと一致しません」。比較対象を明示し、やり直しを促す文を追加。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 2: HTTPエラー
+         改善: 導線・再試行・具体的な説明
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">HTTPエラー <span>— 導線と次のアクションを用意する</span></h2>
+      <div class="card-grid">
+
+        <!-- 404（改善） -->
+        <div class="card">
+          <div class="card-label">404 Not Found</div>
+          <div class="error-display">
+            <div class="fullscreen-error">
+              <div class="error-code">404</div>
+              <!--
+                改善ポイント:
+                - Before: 「ページが見つかりません」だけ
+                - After:  推測メッセージ + トップリンク + 検索フォーム
+              -->
+              <div class="error-message">お探しのページが見つかりませんでした</div>
+              <div class="error-detail">URLが変更されたか、ページが削除された可能性があります</div>
+              <div class="error-actions">
+                <a href="#" class="btn btn-primary">トップページへ</a>
+                <a href="#" class="btn btn-secondary">前のページに戻る</a>
+              </div>
+              <div class="mini-search">
+                <input type="text" placeholder="キーワードで探す...">
+                <button class="btn btn-primary">検索</button>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            行き止まりの解消。原因の推測 +「トップへ」「戻る」のリンク + 検索フォームの3段構えで、ユーザーの次のアクションを複数提示。
+          </div>
+        </div>
+
+        <!-- 500（改善） -->
+        <div class="card">
+          <div class="card-label">500 Internal Server Error</div>
+          <div class="error-display">
+            <div class="fullscreen-error">
+              <div class="error-code" style="color: #dc2626;">500</div>
+              <!--
+                改善ポイント:
+                - Before: 「Internal Server Error」（英語技術用語）
+                - After:  平易な日本語 + 文脈に合わせた説明 + 再試行ボタン
+              -->
+              <div class="error-message">処理を完了できませんでした</div>
+              <div class="error-detail">サーバーで一時的な問題が発生しています。<br>しばらく待ってからもう一度お試しください。</div>
+              <div class="error-actions">
+                <button class="btn btn-primary">もう一度試す</button>
+                <a href="#" class="btn btn-ghost">お問い合わせ</a>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「Internal Server Error」→「処理を完了できませんでした」。技術用語を排除し、一時的な問題であることを示す。再試行ボタンと問い合わせリンクで回復手段を提供。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 3: 権限・認証エラー
+         改善: 威圧感を排除、対処法を明示
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">権限・認証エラー <span>— 威圧感を排除、具体的な案内へ</span></h2>
+      <div class="card-grid">
+
+        <!-- アクセス権限なし（改善） -->
+        <div class="card">
+          <div class="card-label">403 Forbidden</div>
+          <div class="error-display">
+            <div class="alert-warning">
+              <div class="alert-header">
+                <span class="alert-icon">🔐</span>
+                <!--
+                  改善ポイント:
+                  - Before: 「アクセスが拒否されました」（威圧的）
+                  - After:  「権限がありません」+「管理者に連絡」の具体的な案内
+                  - 「拒否」→「権限がない」に言い換え
+                -->
+                <div class="alert-content">
+                  <div class="alert-title">このファイルを編集する権限がありません</div>
+                  <div class="alert-detail">閲覧権限のみ付与されています。編集が必要な場合は、ワークスペースの管理者に権限の変更を依頼してください。</div>
+                  <div class="alert-actions">
+                    <button class="btn-alert btn-alert-secondary">管理者に連絡する</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「拒否されました」→「権限がありません」で威圧感を排除。現在の権限レベルを示し、管理者への連絡という具体的な解決手段を提示。
+          </div>
+        </div>
+
+        <!-- セッション切れ（改善） -->
+        <div class="card">
+          <div class="card-label">401 Unauthorized</div>
+          <div class="error-display">
+            <div class="alert-warning">
+              <div class="alert-header">
+                <span class="alert-icon">🔑</span>
+                <!--
+                  改善ポイント:
+                  - Before: 「認証エラー」
+                  - After:  原因（ログイン有効期限）+ 対処法（ログインし直す）
+                -->
+                <div class="alert-content">
+                  <div class="alert-title">ログインの有効期限が切れました</div>
+                  <div class="alert-detail">セキュリティのため、一定時間操作がない場合は自動的にログアウトされます。</div>
+                  <div class="alert-actions">
+                    <button class="btn-alert">ログインし直す</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「認証エラー」→「ログインの有効期限が切れました」。原因を明確にし、理由（セキュリティのため）も添える。再ログインボタンで即座に対処可能。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 4: 通信・接続エラー
+         改善: 具体的な対処法と再試行ボタン
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">通信・接続エラー <span>— 対処ステップと再試行を提供する</span></h2>
+      <div class="card-grid">
+
+        <!-- タイムアウト（改善） -->
+        <div class="card">
+          <div class="card-label">リクエストタイムアウト</div>
+          <div class="error-display">
+            <div class="alert-warning">
+              <div class="alert-header">
+                <span class="alert-icon">⏳</span>
+                <!--
+                  改善ポイント:
+                  - Before: 「リクエストがタイムアウトしました」（対処法なし）
+                  - After:  原因の説明 + 再試行ボタン + 入力内容を保持している旨の安心材料
+                -->
+                <div class="alert-content">
+                  <div class="alert-title">応答に時間がかかっています</div>
+                  <div class="alert-detail">サーバーからの応答がありませんでした。入力内容は保持されています。</div>
+                  <div class="alert-actions">
+                    <button class="btn-alert">もう一度送信する</button>
+                    <button class="btn-alert btn-alert-secondary">下書きとして保存</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「タイムアウトしました」→「応答に時間がかかっています」で状況を平易に伝える。入力内容の保持を明示して安心感を与え、再送信と下書き保存の2つの選択肢を提示。
+          </div>
+        </div>
+
+        <!-- ネットワークエラー（改善） -->
+        <div class="card">
+          <div class="card-label">ネットワーク接続</div>
+          <div class="error-display">
+            <div class="alert-warning">
+              <div class="alert-header">
+                <span class="alert-icon">📶</span>
+                <!--
+                  改善ポイント:
+                  - Before: 「接続エラー」（原因も対処法も不明）
+                  - After:  原因の推測 + 段階的な対処法リスト
+                -->
+                <div class="alert-content">
+                  <div class="alert-title">インターネットに接続できません</div>
+                  <div class="alert-detail">ネットワーク接続を確認してください。</div>
+                  <ul class="remedy-list">
+                    <li>Wi-Fi またはモバイルデータがオンになっているか確認する</li>
+                    <li>機内モードがオフになっているか確認する</li>
+                    <li>ルーターを再起動する</li>
+                  </ul>
+                  <div class="alert-actions">
+                    <button class="btn-alert">接続を再確認する</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「接続エラー」→「インターネットに接続できません」+具体的な対処リスト。ユーザーが自分で問題を特定・解決できるステップを提示。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 5: 検索・空状態
+         改善: キーワード表示・提案・CTA
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">検索結果・空状態 <span>— 次のアクションとガイドを添える</span></h2>
+      <div class="card-grid">
+
+        <!-- 検索結果なし（改善） -->
+        <div class="card">
+          <div class="card-label">検索結果ゼロ件</div>
+          <div class="error-display">
+            <div class="empty-state">
+              <div class="empty-icon">🔍</div>
+              <!--
+                改善ポイント:
+                - Before: 「結果がありません」
+                - After:  検索キーワードを表示 + 提案リスト
+              -->
+              <div class="empty-text"><span class="search-keyword">Figma プラグイン</span> の検索結果はありません</div>
+              <div class="empty-detail">別のキーワードで試してみてください</div>
+              <ul class="suggestion-list">
+                <li>キーワードを短くする（例:「Figma」だけで検索）</li>
+                <li>スペルや表記ゆれを確認する（例:「プラグイン」「plugin」）</li>
+                <li>カテゴリーから探す</li>
+              </ul>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「結果がありません」→ 検索キーワードを表示して「何を検索したか」を確認可能に。加えて、検索の改善提案を3つ提示して再試行を促す。
+          </div>
+        </div>
+
+        <!-- データなし・空状態（改善） -->
+        <div class="card">
+          <div class="card-label">空のリスト</div>
+          <div class="error-display">
+            <div class="empty-state">
+              <div class="empty-icon">📝</div>
+              <!--
+                改善ポイント:
+                - Before: 「データがありません」
+                - After:  初回ユーザーを想定したガイド + CTA
+              -->
+              <div class="empty-text">まだプロジェクトがありません</div>
+              <div class="empty-detail">最初のプロジェクトを作成して、チームで<br>タスク管理を始めましょう。</div>
+              <div class="empty-actions">
+                <button class="btn btn-primary">プロジェクトを作成する</button>
+              </div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>改善点:</strong>
+            「データがありません」→「まだプロジェクトがありません」。文脈に合わせた文言 + 最初のアクションを促すCTAボタン。空の状態をオンボーディングの機会に変える。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

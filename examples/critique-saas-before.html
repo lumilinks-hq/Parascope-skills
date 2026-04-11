@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     BEFORE: アンチパターン版 — SaaS「TaskFlow」複合画面
+
+     タイポグラフィ・UIコピー・サイト全体の設計品質が
+     改善前の典型的な問題を含む版。
+
+     3画面構成:
+       1. #top       — トップページ（LP）
+       2. #login     — ログイン画面
+       3. #dashboard — ダッシュボード
+
+     アンチパターン:
+       [タイポグラフィ]
+         × Arial, sans-serif（日本語フォント指定なし）
+         × line-height: 1.4（日本語に対して窮屈）
+         × 恣意的 px サイズ（13px, 15px, 17px, 24px, 28px）
+         × letter-spacing: 0.04em（日本語に過剰）
+         × font-weight: 700 多用
+         × font-feature-settings なし
+         × 禁則処理なし
+
+       [UIコピー]
+         × ナビ全英語: Home, Features, Pricing, Login
+         × ボタン英語: Submit, Cancel, Save Changes, Start Free Trial
+         × エラー: 「入力が不正です」「値が無効です」
+         × ダイアログ: 「確認」「はい」「いいえ」
+         × フォーム: First Name / Last Name（英語順）
+         × 空状態: 「No data」
+         × 敬語混在
+         × aria-label なし
+         × アイコンボタンにラベルなし
+
+       [サイト全体品質]
+         × <html lang="en">
+         × 固定幅 960px（レスポンシブなし）
+         × CSS変数なし
+         × 場当たり的余白（12px, 15px, 18px, 25px, 30px...）
+         × ダークモード非対応
+         × フォーカスリング非表示
+     ============================================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow — Project Management Tool</title>
+  <style>
+    /* ============================================
+       BEFORE: アンチパターン CSS
+
+       - Arial, sans-serif のみ（日本語フォント指定なし）
+       - line-height: 1.4（日本語に対して窮屈）
+       - 恣意的 px サイズ（13px, 15px, 17px, 24px, 28px）
+       - letter-spacing: 0.04em（日本語に過剰）
+       - font-weight: 700 多用
+       - font-feature-settings なし
+       - 禁則処理なし
+       - 固定幅 960px（レスポンシブなし）
+       - CSS変数なし
+       - 場当たり的余白
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      color: #333;
+      background: #fff;
+      letter-spacing: 0.04em;
+    }
+
+    /* フォーカスリングを消す（アンチパターン） */
+    :focus {
+      outline: none;
+    }
+
+    /* === 共通ナビゲーション === */
+    header {
+      width: 960px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+
+    nav a {
+      margin-left: 18px;
+      text-decoration: none;
+      color: #666;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    nav a:hover {
+      color: #2563eb;
+    }
+
+    /* === セクション区切り === */
+    .section-divider {
+      width: 960px;
+      margin: 0 auto;
+      padding: 50px 0 15px;
+      border-top: 2px solid #2563eb;
+      text-align: center;
+    }
+
+    .section-divider h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: 0.08em;
+    }
+
+    /* ==========================================
+       セクション1: トップページ（LP）
+       ========================================== */
+
+    .hero {
+      width: 960px;
+      margin: 0 auto;
+      padding: 50px 18px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .hero .cta-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .hero .cta-btn:hover {
+      background: #1d4ed8;
+    }
+
+    /* 機能紹介カード */
+    .features {
+      width: 960px;
+      margin: 0 auto;
+      display: flex;
+      gap: 15px;
+      padding: 25px 18px 50px;
+    }
+
+    .feature-card {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .feature-card .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* LP下部CTA */
+    .bottom-cta {
+      width: 960px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 50px 18px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .bottom-cta h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .bottom-cta p {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+
+    .bottom-cta .cta-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .bottom-cta .cta-btn:hover {
+      background: #1d4ed8;
+    }
+
+    /* ==========================================
+       セクション2: ログイン画面
+       ========================================== */
+
+    .login-page {
+      width: 960px;
+      margin: 0 auto;
+      padding: 30px 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .login-box {
+      width: 420px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 25px;
+      background: #fff;
+    }
+
+    .login-box h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+
+    .error-msg {
+      color: #c00;
+      font-size: 13px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    .login-box .submit-btn {
+      width: 100%;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .login-box .submit-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .login-box .links {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .login-box .links a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .login-box .links a:hover {
+      text-decoration: underline;
+    }
+
+    .name-fields {
+      display: flex;
+      gap: 12px;
+    }
+
+    .name-fields .form-group {
+      flex: 1;
+    }
+
+    /* ==========================================
+       セクション3: ダッシュボード
+       ========================================== */
+
+    .dashboard {
+      width: 960px;
+      margin: 0 auto;
+      display: flex;
+      padding: 15px 0;
+    }
+
+    /* サイドナビ */
+    .sidebar {
+      width: 200px;
+      border-right: 1px solid #ddd;
+      padding: 15px;
+    }
+
+    .sidebar h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 8px 10px;
+      text-decoration: none;
+      color: #666;
+      font-size: 13px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+    }
+
+    .sidebar a:hover {
+      background: #eee;
+    }
+
+    .sidebar a.active {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .sidebar .icon-btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    .sidebar .icon-btn {
+      background: none;
+      border: 1px solid #ddd;
+      font-size: 17px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 4px;
+    }
+
+    .sidebar .icon-btn:hover {
+      background: #eee;
+    }
+
+    /* メインコンテンツ */
+    .main-content {
+      flex: 1;
+      padding: 15px 25px;
+    }
+
+    .main-content h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    /* KPIカード */
+    .kpi-cards {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .kpi-card {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .kpi-card .kpi-label {
+      font-size: 13px;
+      color: #999;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .kpi-card .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .kpi-card .kpi-change {
+      font-size: 13px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    .kpi-change.up { color: #16a34a; }
+    .kpi-change.down { color: #c00; }
+
+    /* テーブル */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      color: #999;
+      padding: 10px 12px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .data-table td {
+      font-size: 13px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #ddd;
+      color: #333;
+    }
+
+    .data-table tr:hover {
+      background: #fafafa;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-badge.complete { background: #e6f9e6; color: #16a34a; }
+    .status-badge.progress { background: #eff6ff; color: #2563eb; }
+    .status-badge.pending { background: #fff8e6; color: #b45309; }
+
+    /* 空状態 */
+    .empty-state {
+      text-align: center;
+      padding: 50px 18px;
+      color: #999;
+      font-size: 15px;
+      border: 1px dashed #ddd;
+      border-radius: 4px;
+      margin-top: 18px;
+    }
+
+    /* 確認ダイアログ */
+    .confirm-dialog {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 18px;
+      max-width: 400px;
+      margin: 18px auto;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .confirm-dialog .dialog-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .confirm-dialog .dialog-desc {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .confirm-dialog .dialog-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .confirm-dialog .btn-danger {
+      background: #c00;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .confirm-dialog .btn-danger:hover {
+      opacity: 0.9;
+    }
+
+    .confirm-dialog .btn-cancel {
+      background: #eee;
+      color: #666;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .confirm-dialog .btn-cancel:hover {
+      background: #ddd;
+    }
+
+    /* アクションボタン群 */
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .btn-secondary {
+      background: #eee;
+      color: #666;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: #ddd;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    /* バリデーション結果ボックス */
+    .validation-box {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 18px;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    .validation-box h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .validation-box ul {
+      font-size: 13px;
+      color: #c00;
+      padding-left: 1.5em;
+      line-height: 1.4;
+    }
+
+    .validation-box li {
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       共通ヘッダー
+       アンチパターン: ナビが全英語
+       ============================================================ -->
+  <header>
+    <div class="logo">TaskFlow</div>
+    <nav>
+      <a href="#top">Home</a>
+      <a href="#top">Features</a>
+      <a href="#top">Pricing</a>
+      <a href="#login">Login</a>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       セクション1: トップページ（LP）
+       アンチパターン:
+         - CTAボタンが英語
+         - 敬語混在（だ/である調とです/ます調が混ざる）
+         - 行長制限なし
+         - 場当たり的余白
+       ============================================================ -->
+  <section id="top">
+
+    <div class="hero">
+      <h1>チームの生産性を、もっとシンプルに。</h1>
+      <p>TaskFlowは、タスク管理・進捗共有・チームコラボレーションをひとつのプラットフォームに統合したプロジェクト管理ツールだ。複雑なワークフローもドラッグ&ドロップで直感的に構築可能。</p>
+      <a href="#" class="cta-btn">Start Free Trial</a>
+    </div>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="icon">📋</div>
+        <h3>タスクボード</h3>
+        <p>カンバン・ガント・リストの3つのビューでタスクを管理。チームの状況が一目でわかり、ドラッグ&ドロップで直感的に操作可能です。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">⏱️</div>
+        <h3>タイムトラッキング</h3>
+        <p>ワンクリックで作業時間を記録。レポート機能で稼働状況を可視化し、チームのリソース配分を最適化する。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔗</div>
+        <h3>インテグレーション</h3>
+        <p>Slack、GitHub、Google Workspaceなど主要ツールとシームレスに連携できます。既存のワークフローを壊さず導入が可能だ。</p>
+      </div>
+    </div>
+
+    <div class="bottom-cta">
+      <h2>Get Started Today</h2>
+      <p>14日間の無料トライアルで全機能をお試しください。クレジットカード不要。</p>
+      <a href="#" class="cta-btn">Start Free Trial</a>
+    </div>
+
+  </section>
+
+  <div class="section-divider">
+    <h2>— LOGIN —</h2>
+  </div>
+
+  <!-- ============================================================
+       セクション2: ログイン画面
+       アンチパターン:
+         - 氏名が First Name / Last Name（英語順）
+         - ボタンが英語（Submit）
+         - エラー文言が「入力が不正です」（原因+対処法なし）
+         - 敬語混在
+         - aria-label なし
+       ============================================================ -->
+  <section id="login">
+
+    <div class="login-page">
+      <div class="login-box">
+        <h2>Login</h2>
+
+        <div class="name-fields">
+          <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" placeholder="Taro">
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" placeholder="Yamada">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com">
+          <div class="error-msg">入力が不正です</div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="password">
+          <div class="error-msg">値が無効です</div>
+        </div>
+
+        <button class="submit-btn">Submit</button>
+
+        <div class="links">
+          <a href="#">Forgot Password?</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- バリデーションエラー表示例 -->
+    <div style="width: 960px; margin: 0 auto; padding: 0 18px 25px;">
+      <div class="validation-box">
+        <h4>エラー</h4>
+        <ul>
+          <li>入力が不正です</li>
+          <li>値が無効です</li>
+          <li>入力してください</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 確認ダイアログ例 -->
+    <div style="width: 960px; margin: 0 auto; padding: 0 18px 25px;">
+      <div class="confirm-dialog">
+        <p class="dialog-title">確認</p>
+        <p class="dialog-desc">この操作を実行してよろしいですか？</p>
+        <div class="dialog-btns">
+          <button class="btn-danger" style="background: #2563eb;">はい</button>
+          <button class="btn-cancel">いいえ</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="section-divider">
+    <h2>— DASHBOARD —</h2>
+  </div>
+
+  <!-- ============================================================
+       セクション3: ダッシュボード
+       アンチパターン:
+         - サイドナビが英語
+         - KPIカードのパディング狭い（12px）
+         - テーブル行の余白が狭い
+         - 空状態が「No data」のみ（CTAなし）
+         - aria-label なし
+         - アイコンボタンにラベルなし
+       ============================================================ -->
+  <section id="dashboard">
+
+    <div class="dashboard">
+
+      <!-- サイドナビ -->
+      <div class="sidebar">
+        <h3>MENU</h3>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Projects</a>
+        <a href="#">Tasks</a>
+        <a href="#">Members</a>
+        <a href="#">Settings</a>
+        <div class="icon-btn-group">
+          <button class="icon-btn">⚙️</button>
+          <button class="icon-btn">🔔</button>
+          <button class="icon-btn">❓</button>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <h2>Dashboard</h2>
+
+        <!-- KPIカード -->
+        <div class="kpi-cards">
+          <div class="kpi-card">
+            <div class="kpi-label">総タスク数</div>
+            <div class="kpi-value">1,247</div>
+            <div class="kpi-change up">前月比 +12%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">完了率</div>
+            <div class="kpi-value">73.2%</div>
+            <div class="kpi-change up">前月比 +5.1pt</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">アクティブメンバー</div>
+            <div class="kpi-value">38</div>
+            <div class="kpi-change down">前月比 −2名</div>
+          </div>
+        </div>
+
+        <!-- タスクテーブル -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>タスク名</th>
+              <th>担当者</th>
+              <th>ステータス</th>
+              <th>期限</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ランディングページのデザインリニューアル</td>
+              <td>山田太郎</td>
+              <td><span class="status-badge progress">進行中</span></td>
+              <td>2026/04/15</td>
+            </tr>
+            <tr>
+              <td>APIエンドポイントの認証機能を実装する</td>
+              <td>佐藤花子</td>
+              <td><span class="status-badge complete">完了</span></td>
+              <td>2026/04/10</td>
+            </tr>
+            <tr>
+              <td>パフォーマンステストの実施とレポート作成</td>
+              <td>鈴木一郎</td>
+              <td><span class="status-badge pending">未着手</span></td>
+              <td>2026/04/20</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 空状態: CTAなし、英語のみ -->
+        <div class="empty-state">
+          <p>No data</p>
+        </div>
+
+        <!-- 削除確認ダイアログ -->
+        <div class="confirm-dialog">
+          <p class="dialog-title">確認</p>
+          <p class="dialog-desc">削除してよろしいですか？</p>
+          <div class="dialog-btns">
+            <button class="btn-danger">はい</button>
+            <button class="btn-cancel">いいえ</button>
+          </div>
+        </div>
+
+        <!-- ボタンが英語 -->
+        <div class="action-btns">
+          <button class="btn-secondary">Cancel</button>
+          <button class="btn-primary">Save Changes</button>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow — 設定</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       AFTER: zen-clarify スキル適用後の設定画面
+       タイポグラフィは before と共通（clarify はコピー品質の比較）
+
+       改善ポイント:
+       1. 敬語レベル統一 — 説明文はです・ます調、ボタンは体言止めで統一
+       2. エラーは「原因 + 対処法」構造、温かい表現
+       3. 主語・目的語を明示
+       4. カタカナ語を和語に置換
+       5. 確認ダイアログに具体的な対象と影響範囲を記載
+       6. 数値・単位の表記統一（半角数字、カンマ区切り、形式統一）
+       7. 空状態にCTAとガイドテキストを追加
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Noto Sans JP", "Inter", sans-serif;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .header-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    /* レイアウト */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* サイドナビ */
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 24px 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 20px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: #475569;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .sidebar-nav li a:hover {
+      background: #f1f5f9;
+    }
+
+    .sidebar-nav li a.active {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 500;
+    }
+
+    .sidebar-nav li a svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* メインコンテンツ */
+    .main {
+      flex: 1;
+      padding: 32px 40px;
+      max-width: 720px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-description {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+
+    /* セクション */
+    .section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .section-description {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* フォーム */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input.error {
+      border-color: #ef4444;
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .form-error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    /* アバター */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .avatar-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .avatar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* ボタン */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-text {
+      background: none;
+      color: #2563eb;
+      padding: 4px 0;
+      border: none;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    /* トグル */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .toggle-group:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-info {
+      flex: 1;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .toggle-description {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: #d1d5db;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+
+    .toggle-switch.active {
+      background: #2563eb;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* プラン */
+    .plan-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .plan-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .plan-price {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .plan-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #2563eb;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    /* 支払い履歴テーブル */
+    .payment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .payment-table th {
+      text-align: left;
+      font-weight: 500;
+      color: #94a3b8;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+    }
+
+    .payment-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* 危険ゾーン */
+    .danger-zone {
+      border-color: #fecaca;
+    }
+
+    .danger-zone .section-title {
+      color: #dc2626;
+    }
+
+    /* 確認ダイアログ */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .dialog {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .dialog-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .dialog-body {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* トースト */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #22c55e;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 200;
+    }
+
+    /* 空状態 */
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .empty-state-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .empty-state-description {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <a href="#" class="header-logo">TaskFlow</a>
+    <div class="header-user">
+      <span>田中 太郎</span>
+      <div class="header-avatar">田</div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- サイドナビ -->
+    <aside class="sidebar">
+      <div class="sidebar-title">設定</div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#profile" class="active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0" /></svg>
+            <!-- 改善: ナビ項目の表記を統一 -->
+            プロフィール
+          </a>
+        </li>
+        <li>
+          <a href="#security">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+            セキュリティ
+          </a>
+        </li>
+        <li>
+          <a href="#notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
+            <!-- 改善4: 「ノーティフィケーション」→「通知」に和語化 -->
+            通知
+          </a>
+        </li>
+        <li>
+          <a href="#billing">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 18.75 4.5H5.25A2.25 2.25 0 0 0 3 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+            プランと請求
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+
+      <!-- ============================================================
+           セクション1: プロフィール設定
+           改善点:
+           - before「プロフィール情報を編集する。」(辞書形)
+             → after「プロフィール情報を確認・編集できます。」(です・ます調で統一)
+           - before ボタン「アップロードする」(辞書形) + 「削除」(体言止め) 混在
+             → after「画像を変更」「画像を削除」(体言止めで統一、目的語を明示)
+           - before エラー「必須です」(主語なし)
+             → after「名を入力してください」(目的語を明示 + 対処法を提示)
+           - before エラー「不正な値です」(冷たい)
+             → after「メールアドレスの形式を確認してください（例: name@example.com）」(原因+対処法)
+           - before ボタン「キャンセルする」+「保存」混在
+             → after「キャンセル」+「変更を保存」(体言止めで統一)
+           ============================================================ -->
+      <h1 class="page-title">プロフィール</h1>
+      <!-- 改善1: 説明文をです・ます調に統一 -->
+      <p class="page-description">プロフィール情報を確認・編集できます。</p>
+
+      <div class="section" id="profile">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">基本情報</h2>
+          </div>
+        </div>
+
+        <div class="avatar-section">
+          <div class="avatar-preview">田</div>
+          <div class="avatar-actions">
+            <!-- 改善1: ボタンを体言止めで統一 + 改善3: 目的語「画像を」を明示 -->
+            <!-- before:「アップロードする」→ after:「画像を変更」 -->
+            <button class="btn btn-secondary btn-sm">画像を変更</button>
+            <!-- before:「削除」→ after:「画像を削除」(目的語を明示) -->
+            <button class="btn btn-text btn-sm">画像を削除</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">姓</label>
+            <input class="form-input" type="text" value="田中">
+          </div>
+          <div class="form-group">
+            <label class="form-label">名</label>
+            <input class="form-input error" type="text" value="">
+            <!-- 改善2+3: before「必須です」→ 目的語を明示し、対処法を提示 -->
+            <p class="form-error">名を入力してください</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input class="form-input error" type="email" value="tanaka@example">
+          <!-- 改善2: before「不正な値です」→ 原因+対処法+具体例 -->
+          <p class="form-error">メールアドレスの形式を確認してください（例: name@example.com）</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">表示名</label>
+          <input class="form-input" type="text" value="tanaka_taro" placeholder="表示名を入力">
+          <p class="form-hint">他のメンバーに表示される名前です</p>
+        </div>
+
+        <div class="button-row">
+          <!-- 改善1: ボタンを体言止めで統一 -->
+          <!-- before:「キャンセルする」+「保存」→ after:「キャンセル」+「変更を保存」 -->
+          <button class="btn btn-secondary">キャンセル</button>
+          <button class="btn btn-primary">変更を保存</button>
+        </div>
+      </div>
+
+
+      <!-- ============================================================
+           セクション2: セキュリティ設定
+           改善点:
+           - before 説明「アカウントのセキュリティ設定を管理します。」(ます調だが他と不統一)
+             → after「パスワードや二要素認証を設定できます。」(です・ます調+具体的な内容)
+           - before エラー「パスワードが無効です」(原因・対処法なし)
+             → after「現在のパスワードが正しくありません。もう一度入力してください」(原因+対処法)
+           - before「８文字以上で設定してください」(全角数字)
+             → after「8文字以上で設定してください」(半角数字に統一)
+           - before ボタン「変更を保存します」(ます形)
+             → after「パスワードを変更」(体言止めで統一 + 目的語を明示)
+           - before 2FA「セキュリティをエンハンスするためにイネーブルにすることをリコメンドします。」
+             → after「不正なログインを防ぐため、二要素認証の設定をおすすめします。」(和語化)
+           - before ボタン「有効にする」(辞書形)
+             → after「二要素認証を設定」(体言止めで統一)
+           ============================================================ -->
+      <div class="section" id="security">
+        <div class="section-header">
+          <div>
+            <!-- 改善: ナビと合わせて「セキュリティ」に統一 -->
+            <h2 class="section-title">セキュリティ</h2>
+            <!-- 改善1: です・ます調で統一 + 具体的な内容を記載 -->
+            <p class="section-description">パスワードや二要素認証を設定できます。</p>
+          </div>
+        </div>
+
+        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">パスワード変更</h3>
+
+        <div class="form-group">
+          <label class="form-label">現在のパスワード</label>
+          <input class="form-input error" type="password" value="wrongpassword">
+          <!-- 改善2: before「パスワードが無効です」→ 原因+対処法 -->
+          <p class="form-error">現在のパスワードが正しくありません。もう一度入力してください</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">新しいパスワード</label>
+          <input class="form-input" type="password" value="">
+          <!-- 改善6: before「８文字」(全角)→ after「8文字」(半角に統一) -->
+          <p class="form-hint">8文字以上で設定してください</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">新しいパスワード（確認）</label>
+          <input class="form-input" type="password" value="">
+        </div>
+
+        <div class="button-row">
+          <button class="btn btn-secondary">キャンセル</button>
+          <!-- 改善1+3: before「変更を保存します」(ます形)→「パスワードを変更」(体言止め+目的語明示) -->
+          <button class="btn btn-primary">パスワードを変更</button>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+          <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">二要素認証（2FA）</h3>
+          <!-- 改善4: before「セキュリティをエンハンスするためにイネーブルにすることをリコメンドします。」
+               → 和語に置換し、具体的な効果を説明 -->
+          <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">不正なログインを防ぐため、二要素認証の設定をおすすめします。</p>
+          <!-- 改善1: before「有効にする」(辞書形)→「二要素認証を設定」(体言止めで統一) -->
+          <button class="btn btn-secondary">二要素認証を設定</button>
+        </div>
+      </div>
+
+
+      <!-- ============================================================
+           セクション3: 通知設定
+           改善点:
+           - before タイトル「ノーティフィケーションのプリファレンス」
+             → after「通知設定」(和語化)
+           - before 説明「ノーティフィケーションのプリファレンスをアップデートする。」
+             → after「通知の受け取り方法を設定できます。」(和語化+です・ます調)
+           - before「Eメールノーティフィケーション」→「メール通知」
+           - before「プッシュノーティフィケーション」→「ブラウザ通知」
+           - before「ウィークリーダイジェスト」→「週次レポート」
+           - before「毎週月曜に過去３日のサマリーをデリバリーします」(全角数字+カタカナ過多)
+             → after「毎週月曜日に、直近7日間の活動をまとめてメールで届きます」(半角数字+和語化)
+           - before 説明文の敬語レベル混在（辞書形+ます調）
+             → after すべてです・ます調に統一
+           - before ボタン「プリファレンスをアップデート」
+             → after「設定を保存」(和語化+体言止め統一)
+           ============================================================ -->
+      <div class="section" id="notifications">
+        <div class="section-header">
+          <div>
+            <!-- 改善4: before「ノーティフィケーションのプリファレンス」→ 和語化 -->
+            <h2 class="section-title">通知設定</h2>
+            <!-- 改善4+1: 和語化+です・ます調に統一 -->
+            <p class="section-description">通知の受け取り方法を設定できます。</p>
+          </div>
+        </div>
+
+        <div class="toggle-group">
+          <div class="toggle-info">
+            <!-- 改善4: before「Eメールノーティフィケーション」→「メール通知」 -->
+            <div class="toggle-label">メール通知</div>
+            <!-- 改善1+4: before「タスクのアサインやメンションがあった時にEメールで受け取る」(辞書形+カタカナ)
+                 → です・ます調に統一 + 「アサイン」→「割り当て」 -->
+            <div class="toggle-description">タスクの割り当てやメンションがあったとき、メールで通知します</div>
+          </div>
+          <div class="toggle-switch active"></div>
+        </div>
+
+        <div class="toggle-group">
+          <div class="toggle-info">
+            <!-- 改善4: before「プッシュノーティフィケーション」→「ブラウザ通知」 -->
+            <div class="toggle-label">ブラウザ通知</div>
+            <!-- 改善1+4: before「ブラウザにプッシュノーティフィケーションが送信されます」
+                 → 和語化+主語を明確に -->
+            <div class="toggle-description">ブラウザにポップアップで通知が届きます</div>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+
+        <div class="toggle-group">
+          <div class="toggle-info">
+            <!-- 改善4: before「ウィークリーダイジェスト」→「週次レポート」 -->
+            <div class="toggle-label">週次レポート</div>
+            <!-- 改善4+6: before「毎週月曜に過去３日のサマリーをデリバリーします」
+                 → 和語化 + 全角「３」→半角「7」に統一 -->
+            <div class="toggle-description">毎週月曜日に、直近7日間の活動をまとめてメールで届きます</div>
+          </div>
+          <div class="toggle-switch active"></div>
+        </div>
+
+        <div class="toggle-group">
+          <div class="toggle-info">
+            <!-- 改善4: 「セキュリティアラート」→「セキュリティ通知」（「アラート」は定着度が微妙） -->
+            <div class="toggle-label">セキュリティ通知</div>
+            <!-- 改善1: before「ログインやパスワード変更があった時に通知する」(辞書形)
+                 → です・ます調に統一 -->
+            <div class="toggle-description">新しいデバイスからのログインやパスワード変更があったとき、メールで通知します</div>
+          </div>
+          <div class="toggle-switch active"></div>
+        </div>
+
+        <div class="button-row">
+          <!-- 改善1: before「キャンセルする」→「キャンセル」(体言止めで統一) -->
+          <button class="btn btn-secondary">キャンセル</button>
+          <!-- 改善4: before「プリファレンスをアップデート」→「設定を保存」(和語化) -->
+          <button class="btn btn-primary">設定を保存</button>
+        </div>
+      </div>
+
+
+      <!-- ============================================================
+           セクション4: プラン・請求
+           改善点:
+           - before 金額表記「¥1,980/月」と「1980円」が混在
+             → after すべて「1,980円」形式に統一
+           - before 日付表記「2024年4月15日」と「2024/03/15」が混在
+             → after すべて「2024/04/15」形式に統一
+           - before 有効期限「12/25」→「2025年12月」(意味が明確な形式に)
+           - before セクション説明なし → after 説明を追加（他セクションと統一）
+           - before ボタン「プランを変更する」(辞書形) + 「編集」(体言止め)
+             → after「プラン変更」「カード情報を変更」(体言止めで統一)
+           ============================================================ -->
+      <div class="section" id="billing">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">プランと請求</h2>
+            <!-- 改善1: 他のセクションと同様に説明文を追加 -->
+            <p class="section-description">ご利用中のプランと請求情報を確認できます。</p>
+          </div>
+        </div>
+
+        <div class="plan-card">
+          <div>
+            <div class="plan-name">Pro プラン <span class="plan-badge">利用中</span></div>
+            <!-- 改善6: before「¥1,980/月」→「月額 1,980円」(表記統一)
+                 before「次回更新日: 2024年4月15日」→「2024/04/15」(日付形式統一) -->
+            <div class="plan-price">月額 1,980円 — 次回の更新日: 2024/04/15</div>
+          </div>
+          <!-- 改善1: before「プランを変更する」(辞書形)→「プラン変更」(体言止め) -->
+          <button class="btn btn-secondary btn-sm">プラン変更</button>
+        </div>
+
+        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">支払い方法</h3>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 28px; background: #1e293b; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700;">VISA</div>
+            <span style="font-size: 13px;">**** **** **** 4242</span>
+            <!-- 改善6: before「有効期限 12/25」→「有効期限 2025年12月」(曖昧さを解消) -->
+            <span style="font-size: 12px; color: #94a3b8;">有効期限 2025年12月</span>
+          </div>
+          <!-- 改善1+3: before「編集」→「カード情報を変更」(体言止め+目的語を明示) -->
+          <button class="btn btn-text btn-sm">カード情報を変更</button>
+        </div>
+
+        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">請求履歴</h3>
+        <table class="payment-table">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>内容</th>
+              <th>金額</th>
+              <th>状態</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2024/03/15</td>
+              <td>Pro プラン 月額</td>
+              <!-- 改善6: before「1980円」→「1,980円」(カンマ区切りで統一) -->
+              <td>1,980円</td>
+              <td><span style="color: #22c55e; font-weight: 500;">支払い済み</span></td>
+            </tr>
+            <tr>
+              <td>2024/02/15</td>
+              <td>Pro プラン 月額</td>
+              <!-- 改善6: before「1980円」→「1,980円」 -->
+              <td>1,980円</td>
+              <td><span style="color: #22c55e; font-weight: 500;">支払い済み</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- ============================================================
+           セクション5: 連携サービス（空状態）
+           改善点:
+           - before「データがありません」(CTAもガイドもなし)
+             → after 状態の説明 + ガイドテキスト + CTAボタン
+           ============================================================ -->
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">連携サービス</h2>
+          </div>
+        </div>
+        <!-- 改善7: before「データがありません」→ 状態説明+ガイド+CTA -->
+        <div class="empty-state">
+          <div class="empty-state-title">まだ連携しているサービスがありません</div>
+          <div class="empty-state-description">Slack や Google カレンダーと連携すると、タスクの通知や予定の同期ができます。</div>
+          <button class="btn btn-primary btn-sm">サービスを連携する</button>
+        </div>
+      </div>
+
+
+      <!-- ============================================================
+           セクション6: アカウント削除
+           改善点:
+           - before タイトル「デンジャーゾーン」(英語直訳のカタカナ)
+             → after「アカウントの削除」(和語+対象を明示)
+           - before 説明「ここでの操作を行うと削除されます。」(主語・目的語なし)
+             → after 具体的な影響範囲を明記
+           - before ボタン「アカウントを削除」
+             → after「アカウントを削除する」(破壊的操作は文脈付き辞書形で例外許容)
+           ============================================================ -->
+      <div class="section danger-zone">
+        <div class="section-header">
+          <div>
+            <!-- 改善4: before「デンジャーゾーン」→「アカウントの削除」 -->
+            <h2 class="section-title">アカウントの削除</h2>
+            <!-- 改善3: before「ここでの操作を行うと削除されます。元に戻すことはできません。」
+                 → 主語・目的語・影響範囲を明示 -->
+            <p class="section-description">アカウントを削除すると、すべてのプロジェクト、タスク、ファイルが完全に消去されます。この操作は取り消せません。</p>
+          </div>
+        </div>
+        <!-- 改善: 破壊的操作は文脈付き辞書形（リファレンスの例外ルールに従う） -->
+        <button class="btn btn-danger">アカウントを削除する</button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============================================================
+       確認ダイアログ（表示状態のサンプル）
+       改善点:
+       - before タイトル「確認」→ after「アカウントを削除しますか？」(具体的な対象)
+       - before 本文「削除しますか？」→ after 影響範囲+取り消し不可を明記
+       - before ボタン「はい/いいえ」→ after「キャンセル/アカウントを削除する」(動作を示す動詞)
+       ============================================================ -->
+  <div class="dialog-overlay">
+    <div class="dialog">
+      <!-- 改善5: before「確認」→ 具体的な対象を明示 -->
+      <div class="dialog-title">アカウントを削除しますか？</div>
+      <!-- 改善5: before「削除しますか？」→ 影響範囲+取り消し不可を明記 -->
+      <div class="dialog-body">削除すると、すべてのプロジェクト、タスク、ファイルが完全に消去されます。この操作は取り消せません。</div>
+      <div class="dialog-actions">
+        <!-- 改善5: before「いいえ/はい」→ 動作を示す具体的なラベル -->
+        <button class="btn btn-secondary">キャンセル</button>
+        <button class="btn btn-danger">アカウントを削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       トースト通知（表示状態のサンプル）
+       改善点:
+       - before「更新されました」(何が？ 主語不明)
+         → after「プロフィールを更新しました」(目的語を明示)
+       ============================================================ -->
+  <div class="toast">プロフィールを更新しました</div>
+
+</body>
+</html>

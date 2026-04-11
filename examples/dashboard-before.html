@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesBoard — 営業ダッシュボード</title>
+  <style>
+    /* ============================================
+       BEFORE: スキルなしで生成した典型的なダッシュボードUI
+
+       意図的に含めたアンチパターン:
+       1. [フォント] Arial, sans-serif — 日本語フォント未指定
+       2. [行間] line-height: 1.4 — 日本語の視覚密度に対して狭すぎる
+       3. [サイズ] 恣意的な値（13px, 15px, 17px, 24px, 28px...スケールに乗っていない）
+       4. [字間] letter-spacing: 0.03em — 日本語に不要な字間
+       5. [ウェイト] font-weight: 700 を見出し・ラベル・数値すべてに多用
+       6. [余白] 場当たり的（padding: 15px, 22px, 30px, margin: 12px, 18px...）
+       7. [数値] font-feature-settings なし — プロポーショナル数字で桁がずれる
+       8. [禁則] 禁則処理の設定なし
+       9. [px固定] すべて px 指定 — ユーザーのフォント設定を無視
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      /* アンチパターン: 日本語フォント未指定。Arialで日本語を表示するとOS依存になる */
+      font-family: Arial, sans-serif;
+      font-size: 15px; /* アンチパターン: スケールに乗っていない恣意的なサイズ */
+      line-height: 1.4; /* アンチパターン: 日本語には狭い */
+      color: #333;
+      letter-spacing: 0.03em; /* アンチパターン: 日本語に不要な字間 */
+      background: #f5f5f5;
+      /* アンチパターン: 禁則処理なし、overflow-wrapなし */
+    }
+
+    /* === レイアウト === */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* サイドバー */
+    .sidebar {
+      width: 220px;
+      background: #1a1a2e;
+      color: white;
+      padding: 22px 0; /* アンチパターン: 22px — 規則性のない余白 */
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      font-size: 22px; /* アンチパターン: スケール外の値 */
+      font-weight: 700;
+      padding: 0 18px 22px; /* アンチパターン: 18px, 22px — 場当たり的 */
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 15px; /* アンチパターン: 15px */
+    }
+
+    .sidebar-section {
+      padding: 0 18px;
+      margin-bottom: 25px; /* アンチパターン: 25px */
+    }
+
+    .sidebar-section-title {
+      font-size: 11px; /* アンチパターン: 小さすぎる、スケール外 */
+      font-weight: 700; /* アンチパターン: セクションラベルにBold */
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.08em; /* アンチパターン: 日本語にuppercase+letter-spacing */
+      margin-bottom: 10px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px; /* アンチパターン: 9px — 奇数の余白 */
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .sidebar-link.active {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      font-weight: 700; /* アンチパターン: アクティブ項目もBold */
+    }
+
+    .sidebar-link-icon {
+      font-size: 18px; /* アンチパターン: スケール外 */
+      width: 22px;
+      text-align: center;
+    }
+
+    /* メインコンテンツ */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ヘッダー */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px; /* アンチパターン: 15px, 30px — 場当たり的 */
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .header-title {
+      font-size: 24px; /* アンチパターン: スケール外 */
+      font-weight: 700; /* アンチパターン: ページタイトルにBold */
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 18px; /* アンチパターン: 18px */
+    }
+
+    .notification-badge {
+      position: relative;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .notification-badge::after {
+      content: "3";
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: #6366f1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 700; /* アンチパターン: ユーザー名にBold */
+    }
+
+    .user-role {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* コンテンツエリア */
+    .content {
+      padding: 30px; /* アンチパターン: 30px */
+      flex: 1;
+    }
+
+    /* 期間セレクター */
+    .period-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px; /* アンチパターン: 22px */
+    }
+
+    .period-btn {
+      padding: 7px 16px; /* アンチパターン: 7px — 奇数 */
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      font-size: 13px; /* アンチパターン: スケール外 */
+      cursor: pointer;
+      color: #666;
+    }
+
+    .period-btn.active {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+      font-weight: 700; /* アンチパターン: アクティブボタンにBold */
+    }
+
+    /* KPIカード */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px; /* アンチパターン: 18px */
+      margin-bottom: 30px; /* アンチパターン: 30px */
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 22px; /* アンチパターン: 22px */
+      border-radius: 10px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .kpi-label {
+      font-size: 13px; /* アンチパターン: スケール外 */
+      color: #888;
+      font-weight: 700; /* アンチパターン: ラベルにBold */
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px; /* アンチパターン: スケール外 */
+      font-weight: 700; /* アンチパターン: 数値にBold（日本語フォントでは重すぎる） */
+      color: #111;
+      margin-bottom: 6px;
+      /* アンチパターン: font-feature-settings なし → プロポーショナル数字で桁がずれる */
+    }
+
+    .kpi-change {
+      font-size: 13px; /* アンチパターン: スケール外 */
+      font-weight: 700; /* アンチパターン: 変化率にもBold */
+    }
+
+    .kpi-change.positive { color: #16a34a; }
+    .kpi-change.negative { color: #dc2626; }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* チャート風エリア */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px; /* アンチパターン: 18px */
+      margin-bottom: 30px; /* アンチパターン: 30px */
+    }
+
+    .chart-card {
+      background: white;
+      padding: 22px; /* アンチパターン: 22px */
+      border-radius: 10px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .chart-card-title {
+      font-size: 17px; /* アンチパターン: スケール外 */
+      font-weight: 700; /* アンチパターン: カードタイトルにBold */
+      margin-bottom: 18px; /* アンチパターン: 18px */
+    }
+
+    /* CSSバーチャート */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 140px;
+      padding-top: 10px;
+    }
+
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 40px;
+      background: #6366f1;
+      border-radius: 4px 4px 0 0;
+      min-height: 8px;
+    }
+
+    .bar-label {
+      font-size: 11px; /* アンチパターン: 11px — 小さすぎる */
+      color: #999;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* ドーナツチャート風 */
+    .donut-chart {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #6366f1 0% 42%,
+        #22c55e 42% 68%,
+        #f59e0b 68% 85%,
+        #e5e7eb 85% 100%
+      );
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .donut-chart::after {
+      content: "";
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      right: 30px;
+      bottom: 30px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px; /* アンチパターン: スケール外 */
+      color: #666;
+    }
+
+    .donut-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* テーブル */
+    .table-card {
+      background: white;
+      border-radius: 10px;
+      border: 1px solid #e5e5e5;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px; /* アンチパターン: 18px, 22px */
+    }
+
+    .table-title {
+      font-size: 17px; /* アンチパターン: スケール外 */
+      font-weight: 700; /* アンチパターン: テーブルタイトルにBold */
+    }
+
+    .table-action {
+      font-size: 13px; /* アンチパターン: スケール外 */
+      color: #6366f1;
+      text-decoration: none;
+      font-weight: 700; /* アンチパターン: リンクにBold */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 22px; /* アンチパターン: 10px, 22px */
+      font-size: 12px; /* アンチパターン: 小さすぎる */
+      font-weight: 700; /* アンチパターン: テーブルヘッダーにBold */
+      color: #999;
+      text-transform: uppercase; /* アンチパターン: 日本語にuppercase */
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    td {
+      padding: 12px 22px; /* アンチパターン: 12px, 22px */
+      font-size: 14px;
+      border-bottom: 1px solid #f3f3f3;
+      color: #333;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700; /* アンチパターン: ステータスバッジにBold */
+    }
+
+    .status-badge.completed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .status-badge.pending {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .status-badge.cancelled {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status-badge.processing {
+      background: #e0e7ff;
+      color: #4f46e5;
+    }
+
+    .amount {
+      /* アンチパターン: font-feature-settings未設定 — プロポーショナル数字で金額の桁がずれる */
+      font-weight: 700; /* アンチパターン: 金額にBold */
+    }
+
+    @media (max-width: 1024px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- サイドバー -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">SalesBoard</div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">メイン</div>
+        <a href="#" class="sidebar-link active">
+          <span class="sidebar-link-icon">📊</span>
+          ダッシュボード
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">💰</span>
+          売上管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">👥</span>
+          顧客管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📋</span>
+          商談一覧
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">レポート</div>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📈</span>
+          売上レポート
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">🎯</span>
+          目標管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📅</span>
+          月次レポート
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">設定</div>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">⚙️</span>
+          アカウント設定
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">👤</span>
+          チーム管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <div class="main">
+      <!-- ヘッダー -->
+      <header class="header">
+        <h1 class="header-title">ダッシュボード</h1>
+        <div class="header-right">
+          <div class="notification-badge">🔔</div>
+          <div class="user-info">
+            <div class="user-avatar">田</div>
+            <div>
+              <div class="user-name">田中 太郎</div>
+              <div class="user-role">営業部 マネージャー</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- コンテンツ -->
+      <div class="content">
+        <!-- 期間セレクター -->
+        <div class="period-selector">
+          <button class="period-btn">今日</button>
+          <button class="period-btn">今週</button>
+          <button class="period-btn active">今月</button>
+          <button class="period-btn">四半期</button>
+          <button class="period-btn">年間</button>
+        </div>
+
+        <!-- KPIカード -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">月間売上</div>
+            <div class="kpi-value">¥12,847,500</div>
+            <div class="kpi-change positive">↑ 12.5% 前月比</div>
+            <div class="kpi-sub">目標達成率 85.6%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">アクティブユーザー数</div>
+            <div class="kpi-value">3,284</div>
+            <div class="kpi-change positive">↑ 8.3% 前月比</div>
+            <div class="kpi-sub">新規 412 / 復帰 89</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">コンバージョン率</div>
+            <div class="kpi-value">4.72%</div>
+            <div class="kpi-change negative">↓ 0.8% 前月比</div>
+            <div class="kpi-sub">業界平均 3.2%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">MRR（月次経常収益）</div>
+            <div class="kpi-value">¥8,350,000</div>
+            <div class="kpi-change positive">↑ 5.2% 前月比</div>
+            <div class="kpi-sub">ARR ¥100,200,000</div>
+          </div>
+        </div>
+
+        <!-- チャートエリア -->
+        <div class="charts-grid">
+          <!-- 月別売上推移（バーチャート） -->
+          <div class="chart-card">
+            <div class="chart-card-title">月別売上推移</div>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar-label">10月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 62%"></div>
+                <div class="bar-label">11月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 48%"></div>
+                <div class="bar-label">12月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 71%"></div>
+                <div class="bar-label">1月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 68%"></div>
+                <div class="bar-label">2月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 85%"></div>
+                <div class="bar-label">3月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 78%"></div>
+                <div class="bar-label">4月</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 売上構成比（ドーナツ） -->
+          <div class="chart-card">
+            <div class="chart-card-title">売上構成比</div>
+            <div class="donut-chart"></div>
+            <div class="donut-legend">
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #6366f1"></div>
+                SaaSライセンス 42%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #22c55e"></div>
+                コンサルティング 26%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #f59e0b"></div>
+                カスタム開発 17%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #e5e7eb"></div>
+                その他 15%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 取引一覧テーブル -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">最近の取引</div>
+            <a href="#" class="table-action">すべて表示 →</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>取引日</th>
+                <th>顧客名</th>
+                <th>案件名</th>
+                <th>金額</th>
+                <th>ステータス</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026/04/08</td>
+                <td>株式会社テクノソリューション</td>
+                <td>基幹システムリプレイス</td>
+                <td class="amount">¥3,500,000</td>
+                <td><span class="status-badge completed">成約</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/07</td>
+                <td>合同会社グリーンファクトリー</td>
+                <td>ECサイト構築</td>
+                <td class="amount">¥1,280,000</td>
+                <td><span class="status-badge processing">進行中</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/05</td>
+                <td>株式会社ネクストブリッジ</td>
+                <td>AI分析ツール導入</td>
+                <td class="amount">¥2,150,000</td>
+                <td><span class="status-badge pending">見積中</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/04</td>
+                <td>医療法人あおば会</td>
+                <td>予約管理システム</td>
+                <td class="amount">¥980,000</td>
+                <td><span class="status-badge completed">成約</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/03</td>
+                <td>株式会社サンライズ物流</td>
+                <td>配送最適化エンジン</td>
+                <td class="amount">¥4,200,000</td>
+                <td><span class="status-badge cancelled">失注</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/01</td>
+                <td>株式会社デジタルクラフト</td>
+                <td>SaaS移行コンサルティング</td>
+                <td class="amount">¥1,650,000</td>
+                <td><span class="status-badge processing">進行中</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

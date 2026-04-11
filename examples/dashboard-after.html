@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesBoard — 営業ダッシュボード</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       AFTER: /typeset-ja 適用版（ダッシュボードUI）
+
+       改善ポイント:
+       1. [フォント] Inter + Noto Sans JP + 游ゴシック Medium フォールバック
+          → 和欧混植で英字優先ベースライン安定、Windows対策で "Yu Gothic Medium" 先置き
+       2. [行間] line-height: 1.7（ダッシュボードは少し詰めてOK。長文の1.8より控えめ）
+       3. [スケール] Minor Third (1.2) のモジュラースケール
+          → ダッシュボード向けの控えめな比率。サイズ差が小さくても漢字は視認性の違いが出る
+       4. [余白] 8の倍数パターン（8px, 16px, 24px, 32px, 48px...）
+          → ダッシュボードはツール連携しやすい8px基準がベター
+       5. [字間] letter-spacing: 0（日本語のデフォルトが最適）
+       6. [ウェイト] 数値 500、ラベル 400、見出し 500。Bold (700) は使わない
+          → 日本語は画数が多く、500で十分な見出し感。700多用は「くどい」印象に
+       7. [数値] font-feature-settings: "tnum" 1（等幅数字で桁揃え）
+          → KPIの金額、パーセント、テーブルの金額列が美しく揃う
+       8. [約物] font-feature-settings: "chws" 1（和欧間スペーシング）
+       9. [禁則] line-break: strict, overflow-wrap: break-word
+       10. [単位] rem 基準 — ユーザーのブラウザ設定（デフォルトフォントサイズ）を尊重
+       11. [行長] max-width: 45em はダッシュボードUIには適用しない。コンテナ幅に従う
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* === モジュラースケール (ratio: 1.2 = Minor Third) === */
+      --text-xs:    0.694rem;  /* 11.1px  — base ÷ 1.2² */
+      --text-sm:    0.833rem;  /* 13.3px  — base ÷ 1.2  */
+      --text-base:  1rem;      /* 16px    — base */
+      --text-lg:    1.2rem;    /* 19.2px  — base × 1.2  */
+      --text-xl:    1.44rem;   /* 23px    — base × 1.2² */
+      --text-2xl:   1.728rem;  /* 27.6px  — base × 1.2³ */
+
+      /* === 8の倍数余白 === */
+      --space-1:  0.5rem;    /*  8px */
+      --space-2:  1rem;      /* 16px */
+      --space-3:  1.5rem;    /* 24px */
+      --space-4:  2rem;      /* 32px */
+      --space-5:  2.5rem;    /* 40px */
+      --space-6:  3rem;      /* 48px */
+
+      /* === カラー === */
+      --indigo-600: #4f46e5;
+      --indigo-50:  #eef2ff;
+      --green-600:  #16a34a;
+      --green-50:   #f0fdf4;
+      --amber-600:  #d97706;
+      --amber-50:   #fffbeb;
+      --red-600:    #dc2626;
+      --red-50:     #fef2f2;
+      --gray-900:   #111827;
+      --gray-700:   #374151;
+      --gray-500:   #6b7280;
+      --gray-400:   #9ca3af;
+      --gray-200:   #e5e7eb;
+      --gray-100:   #f3f4f6;
+      --gray-50:    #f9fafb;
+    }
+
+    body {
+      /* 改善: Inter → Noto Sans JP の順で和欧混植。英字フォント優先でベースライン安定 */
+      font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic Medium", "Yu Gothic", sans-serif;
+      font-size: var(--text-base); /* 改善: rem 基準 */
+      line-height: 1.7; /* 改善: 日本語ダッシュボードに適した行間 */
+      color: var(--gray-900);
+      letter-spacing: 0; /* 改善: 日本語はデフォルトが最適 */
+      background: var(--gray-50);
+      overflow-wrap: break-word; /* 改善: 長い英単語の折り返し */
+      line-break: strict; /* 改善: 厳密な禁則処理 */
+      font-feature-settings: "chws" 1, "vchw" 1; /* 改善: 和欧間スペーシング */
+    }
+
+    /* === レイアウト === */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* サイドバー */
+    .sidebar {
+      width: 14rem; /* 224px — 8の倍数 */
+      background: #1a1a2e;
+      color: white;
+      padding: var(--space-3) 0; /* 改善: 8の倍数 (24px) */
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      font-size: var(--text-lg); /* 改善: スケール上 (1.2rem) */
+      font-weight: 600;
+      padding: 0 var(--space-2) var(--space-3); /* 改善: 16px, 24px — 8の倍数 */
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: var(--space-2); /* 改善: 16px */
+      letter-spacing: -0.02em; /* 英字ロゴは少し詰める */
+    }
+
+    .sidebar-section {
+      padding: 0 var(--space-2);
+      margin-bottom: var(--space-3); /* 改善: 24px */
+    }
+
+    .sidebar-section-title {
+      font-size: var(--text-xs); /* 改善: スケール上 (0.694rem) */
+      font-weight: 400; /* 改善: Bold → Regular。セクションラベルは控えめに */
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0; /* 改善: 日本語ラベルに余計な字間は不要 */
+      margin-bottom: var(--space-1); /* 改善: 8px */
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1); /* 改善: 8px */
+      padding: var(--space-1) var(--space-2); /* 改善: 8px 16px */
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: var(--text-sm); /* 改善: スケール上 (0.833rem) */
+      border-radius: 6px;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .sidebar-link.active {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      font-weight: 500; /* 改善: Bold (700) → Medium (500)。日本語は500で十分 */
+    }
+
+    .sidebar-link-icon {
+      font-size: var(--text-base); /* 改善: スケール上 */
+      width: 1.5rem; /* 24px */
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* メインコンテンツ */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ヘッダー */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-2) var(--space-4); /* 改善: 16px 32px — 8の倍数 */
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .header-title {
+      font-size: var(--text-xl); /* 改善: スケール上 (1.44rem = 23px) */
+      font-weight: 500; /* 改善: Bold (700) → Medium (500) */
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2); /* 改善: 16px */
+    }
+
+    .notification-badge {
+      position: relative;
+      font-size: var(--text-lg); /* 改善: スケール上 */
+      cursor: pointer;
+    }
+
+    .notification-badge::after {
+      content: "3";
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: var(--red-600);
+      color: white;
+      font-size: 0.625rem; /* 10px — バッジはUI部品なので固定でOK */
+      font-weight: 500;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-feature-settings: "tnum" 1;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1); /* 改善: 8px */
+    }
+
+    .user-avatar {
+      width: 2rem; /* 32px */
+      height: 2rem;
+      background: var(--indigo-600);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500; /* 改善: Bold → Medium */
+      font-size: var(--text-sm);
+    }
+
+    .user-name {
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      font-weight: 500; /* 改善: Bold → Medium */
+    }
+
+    .user-role {
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      color: var(--gray-500);
+    }
+
+    /* コンテンツエリア */
+    .content {
+      padding: var(--space-4); /* 改善: 32px — 8の倍数 */
+      flex: 1;
+    }
+
+    /* 期間セレクター */
+    .period-selector {
+      display: flex;
+      gap: var(--space-1); /* 改善: 8px */
+      margin-bottom: var(--space-3); /* 改善: 24px */
+    }
+
+    .period-btn {
+      padding: var(--space-1) var(--space-2); /* 改善: 8px 16px — 8の倍数 */
+      border: 1px solid var(--gray-200);
+      background: white;
+      border-radius: 6px;
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      cursor: pointer;
+      color: var(--gray-500);
+      font-family: inherit; /* ボタンにもフォント継承 */
+    }
+
+    .period-btn.active {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+      font-weight: 500; /* 改善: Bold → Medium */
+    }
+
+    /* KPIカード */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-2); /* 改善: 16px — 8の倍数 */
+      margin-bottom: var(--space-3); /* 改善: 24px */
+    }
+
+    .kpi-card {
+      background: white;
+      padding: var(--space-3); /* 改善: 24px — 8の倍数 */
+      border-radius: 0.5rem; /* 8px */
+      border: 1px solid var(--gray-200);
+    }
+
+    .kpi-label {
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      color: var(--gray-500);
+      font-weight: 400; /* 改善: Bold → Regular。ラベルは控えめに */
+      margin-bottom: var(--space-1); /* 改善: 8px */
+    }
+
+    .kpi-value {
+      font-size: var(--text-2xl); /* 改善: スケール上 (1.728rem = 27.6px) */
+      font-weight: 500; /* 改善: Bold (700) → Medium (500)。日本語フォントでは500で十分な存在感 */
+      color: var(--gray-900);
+      margin-bottom: var(--space-1); /* 改善: 8px */
+      font-feature-settings: "tnum" 1; /* ★ 改善: 等幅数字で桁揃え。金額・パーセントが美しく揃う */
+    }
+
+    .kpi-change {
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      font-weight: 400; /* 改善: Bold → Regular */
+      font-feature-settings: "tnum" 1; /* 改善: 変化率も等幅数字 */
+    }
+
+    .kpi-change.positive { color: var(--green-600); }
+    .kpi-change.negative { color: var(--red-600); }
+
+    .kpi-sub {
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      color: var(--gray-400);
+      margin-top: var(--space-1);
+      font-feature-settings: "tnum" 1; /* 改善: 補足数値も等幅 */
+    }
+
+    /* チャート風エリア */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-2); /* 改善: 16px */
+      margin-bottom: var(--space-3); /* 改善: 24px */
+    }
+
+    .chart-card {
+      background: white;
+      padding: var(--space-3); /* 改善: 24px */
+      border-radius: 0.5rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    .chart-card-title {
+      font-size: var(--text-base); /* 改善: スケール上 (1rem) */
+      font-weight: 500; /* 改善: Bold → Medium */
+      margin-bottom: var(--space-2); /* 改善: 16px */
+    }
+
+    /* CSSバーチャート */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--space-2); /* 改善: 16px */
+      height: 9rem; /* 144px */
+      padding-top: var(--space-1);
+    }
+
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 2.5rem; /* 40px */
+      background: var(--indigo-600);
+      border-radius: 4px 4px 0 0;
+      min-height: 0.5rem;
+    }
+
+    .bar-label {
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      color: var(--gray-500);
+      margin-top: var(--space-1);
+      text-align: center;
+      font-feature-settings: "tnum" 1; /* 月表記の数字も等幅 */
+    }
+
+    /* ドーナツチャート風 */
+    .donut-chart {
+      width: 9rem; /* 144px */
+      height: 9rem;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--indigo-600) 0% 42%,
+        #22c55e 42% 68%,
+        #f59e0b 68% 85%,
+        var(--gray-200) 85% 100%
+      );
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .donut-chart::after {
+      content: "";
+      position: absolute;
+      top: 1.875rem; /* 30px */
+      left: 1.875rem;
+      right: 1.875rem;
+      bottom: 1.875rem;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      color: var(--gray-700);
+      font-feature-settings: "tnum" 1; /* パーセント数字を等幅に */
+    }
+
+    .donut-legend-dot {
+      width: 0.5rem; /* 8px */
+      height: 0.5rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* テーブル */
+    .table-card {
+      background: white;
+      border-radius: 0.5rem;
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-2) var(--space-3); /* 改善: 16px 24px */
+    }
+
+    .table-title {
+      font-size: var(--text-base); /* 改善: スケール上 */
+      font-weight: 500; /* 改善: Bold → Medium */
+    }
+
+    .table-action {
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      color: var(--indigo-600);
+      text-decoration: none;
+      font-weight: 400; /* 改善: Bold → Regular */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: var(--space-1) var(--space-3); /* 改善: 8px 24px */
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      font-weight: 400; /* 改善: Bold → Regular。テーブルヘッダーは色で区別、太さは不要 */
+      color: var(--gray-500);
+      /* 改善: text-transform: uppercase を削除。日本語にuppercaseは意味がない */
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    td {
+      padding: var(--space-2) var(--space-3); /* 改善: 16px 24px — 8の倍数 */
+      font-size: var(--text-sm); /* 改善: スケール上 */
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px var(--space-1);
+      border-radius: 0.75rem; /* 12px */
+      font-size: var(--text-xs); /* 改善: スケール上 */
+      font-weight: 500; /* 改善: Bold → Medium */
+    }
+
+    .status-badge.completed {
+      background: var(--green-50);
+      color: var(--green-600);
+    }
+
+    .status-badge.pending {
+      background: var(--amber-50);
+      color: var(--amber-600);
+    }
+
+    .status-badge.cancelled {
+      background: var(--red-50);
+      color: var(--red-600);
+    }
+
+    .status-badge.processing {
+      background: var(--indigo-50);
+      color: var(--indigo-600);
+    }
+
+    .amount {
+      font-feature-settings: "tnum" 1; /* ★ 改善: 等幅数字で金額の桁が美しく揃う */
+      font-weight: 500; /* 改善: Bold → Medium */
+    }
+
+    @media (max-width: 1024px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .content {
+        padding: var(--space-2); /* 16px — モバイルでも8の倍数 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- サイドバー -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">SalesBoard</div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">メイン</div>
+        <a href="#" class="sidebar-link active">
+          <span class="sidebar-link-icon">📊</span>
+          ダッシュボード
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">💰</span>
+          売上管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">👥</span>
+          顧客管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📋</span>
+          商談一覧
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">レポート</div>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📈</span>
+          売上レポート
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">🎯</span>
+          目標管理
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">📅</span>
+          月次レポート
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">設定</div>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">⚙️</span>
+          アカウント設定
+        </a>
+        <a href="#" class="sidebar-link">
+          <span class="sidebar-link-icon">👤</span>
+          チーム管理
+        </a>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <div class="main">
+      <!-- ヘッダー -->
+      <header class="header">
+        <h1 class="header-title">ダッシュボード</h1>
+        <div class="header-right">
+          <div class="notification-badge">🔔</div>
+          <div class="user-info">
+            <div class="user-avatar">田</div>
+            <div>
+              <div class="user-name">田中 太郎</div>
+              <div class="user-role">営業部 マネージャー</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- コンテンツ -->
+      <div class="content">
+        <!-- 期間セレクター -->
+        <div class="period-selector">
+          <button class="period-btn">今日</button>
+          <button class="period-btn">今週</button>
+          <button class="period-btn active">今月</button>
+          <button class="period-btn">四半期</button>
+          <button class="period-btn">年間</button>
+        </div>
+
+        <!-- KPIカード -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">月間売上</div>
+            <div class="kpi-value">¥12,847,500</div>
+            <div class="kpi-change positive">↑ 12.5% 前月比</div>
+            <div class="kpi-sub">目標達成率 85.6%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">アクティブユーザー数</div>
+            <div class="kpi-value">3,284</div>
+            <div class="kpi-change positive">↑ 8.3% 前月比</div>
+            <div class="kpi-sub">新規 412 / 復帰 89</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">コンバージョン率</div>
+            <div class="kpi-value">4.72%</div>
+            <div class="kpi-change negative">↓ 0.8% 前月比</div>
+            <div class="kpi-sub">業界平均 3.2%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">MRR（月次経常収益）</div>
+            <div class="kpi-value">¥8,350,000</div>
+            <div class="kpi-change positive">↑ 5.2% 前月比</div>
+            <div class="kpi-sub">ARR ¥100,200,000</div>
+          </div>
+        </div>
+
+        <!-- チャートエリア -->
+        <div class="charts-grid">
+          <!-- 月別売上推移（バーチャート） -->
+          <div class="chart-card">
+            <div class="chart-card-title">月別売上推移</div>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar" style="height: 55%"></div>
+                <div class="bar-label">10月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 62%"></div>
+                <div class="bar-label">11月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 48%"></div>
+                <div class="bar-label">12月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 71%"></div>
+                <div class="bar-label">1月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 68%"></div>
+                <div class="bar-label">2月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 85%"></div>
+                <div class="bar-label">3月</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height: 78%"></div>
+                <div class="bar-label">4月</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 売上構成比（ドーナツ） -->
+          <div class="chart-card">
+            <div class="chart-card-title">売上構成比</div>
+            <div class="donut-chart"></div>
+            <div class="donut-legend">
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #4f46e5"></div>
+                SaaSライセンス 42%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #22c55e"></div>
+                コンサルティング 26%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #f59e0b"></div>
+                カスタム開発 17%
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-legend-dot" style="background: #e5e7eb"></div>
+                その他 15%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 取引一覧テーブル -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">最近の取引</div>
+            <a href="#" class="table-action">すべて表示 →</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>取引日</th>
+                <th>顧客名</th>
+                <th>案件名</th>
+                <th>金額</th>
+                <th>ステータス</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026/04/08</td>
+                <td>株式会社テクノソリューション</td>
+                <td>基幹システムリプレイス</td>
+                <td class="amount">¥3,500,000</td>
+                <td><span class="status-badge completed">成約</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/07</td>
+                <td>合同会社グリーンファクトリー</td>
+                <td>ECサイト構築</td>
+                <td class="amount">¥1,280,000</td>
+                <td><span class="status-badge processing">進行中</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/05</td>
+                <td>株式会社ネクストブリッジ</td>
+                <td>AI分析ツール導入</td>
+                <td class="amount">¥2,150,000</td>
+                <td><span class="status-badge pending">見積中</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/04</td>
+                <td>医療法人あおば会</td>
+                <td>予約管理システム</td>
+                <td class="amount">¥980,000</td>
+                <td><span class="status-badge completed">成約</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/03</td>
+                <td>株式会社サンライズ物流</td>
+                <td>配送最適化エンジン</td>
+                <td class="amount">¥4,200,000</td>
+                <td><span class="status-badge cancelled">失注</span></td>
+              </tr>
+              <tr>
+                <td>2026/04/01</td>
+                <td>株式会社デジタルクラフト</td>
+                <td>SaaS移行コンサルティング</td>
+                <td class="amount">¥1,650,000</td>
+                <td><span class="status-badge processing">進行中</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エラーメッセージカタログ — Before（アンチパターン集）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       BEFORE: zen-clarify スキルなしのエラーメッセージ
+
+       意図的に含めたアンチパターン:
+       - 原因の説明がない（何が起きたか不明）
+       - 対処法がない（ユーザーが次に何をすればいいか分からない）
+       - 冷たい口調（「不正」「拒否」「エラー」の多用）
+       - 技術用語がそのまま（Internal Server Error）
+       - 行き止まり（導線・リンク・ボタンがない）
+       - 空状態に何の手がかりもない
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Noto Sans JP", "Inter", sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #1a1a1a;
+      background: #f5f5f5;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 24px 32px;
+    }
+
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .badge-before {
+      display: inline-block;
+      background: #fee2e2;
+      color: #dc2626;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* メインコンテンツ */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* セクション */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      font-weight: 400;
+      color: #999;
+      margin-left: 8px;
+    }
+
+    /* カード */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    /* エラーメッセージの表示エリア */
+    .error-display {
+      background: #fafafa;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .error-text {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .error-text-lg {
+      color: #dc2626;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .error-text-code {
+      color: #dc2626;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .error-subtext {
+      color: #999;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* フォーム風の表示 */
+    .mock-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mock-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mock-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .mock-input {
+      border: 1px solid #dc2626;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      outline: none;
+    }
+
+    .mock-input-normal {
+      border-color: #d1d5db;
+    }
+
+    .mock-input::placeholder {
+      color: #ccc;
+    }
+
+    .field-error {
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* 全画面エラー風の表示 */
+    .fullscreen-error {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .fullscreen-error .error-code {
+      font-size: 48px;
+      font-weight: 700;
+      color: #dc2626;
+      line-height: 1;
+    }
+
+    .fullscreen-error .error-message {
+      font-size: 15px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    /* 空状態 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+    }
+
+    /* インラインアラート */
+    .alert-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .alert-icon {
+      color: #dc2626;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .alert-text {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* 注釈 */
+    .annotation {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.7;
+    }
+
+    .annotation strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="page-header">
+    <h1>エラーメッセージカタログ <span class="badge-before">Before</span></h1>
+    <p>zen-clarify スキル適用前 — 典型的なアンチパターン集</p>
+  </div>
+
+  <div class="container">
+
+    <!-- ========================================
+         セクション 1: フォームバリデーション
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">フォームバリデーション <span>— 冷たく、対処法なし</span></h2>
+      <div class="card-grid">
+
+        <!-- 必須エラー -->
+        <div class="card">
+          <div class="card-label">必須フィールド</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">お名前</span>
+              <input type="text" class="mock-input" value="" placeholder="" disabled>
+              <!-- アンチパターン: 「必須です」だけ。何を入力すればいいか不明 -->
+              <span class="field-error">必須です</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            「必須です」の一言だけ。何を入力すればいいのか、なぜ必要なのかの説明がない。
+          </div>
+        </div>
+
+        <!-- メール形式エラー -->
+        <div class="card">
+          <div class="card-label">メールアドレスの形式</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">メールアドレス</span>
+              <input type="text" class="mock-input" value="taro.yamada" disabled>
+              <!-- アンチパターン: 「不正な形式です」— 何が不正か分からない -->
+              <span class="field-error">不正な形式です</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            「不正な形式」は攻撃的。正しい形式の例示もない。ユーザーは何を直せばいいか分からない。
+          </div>
+        </div>
+
+        <!-- 文字数オーバー -->
+        <div class="card">
+          <div class="card-label">文字数制限</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">自己紹介</span>
+              <input type="text" class="mock-input" value="私はデザイナーで..." disabled>
+              <!-- アンチパターン: 何文字オーバーか、上限が何文字かの情報なし -->
+              <span class="field-error">文字数オーバー</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            上限が何文字か、現在何文字かの情報がない。ユーザーはどれだけ削ればいいか見当がつかない。
+          </div>
+        </div>
+
+        <!-- パスワード不一致 -->
+        <div class="card">
+          <div class="card-label">パスワード確認</div>
+          <div class="mock-form">
+            <div class="mock-field">
+              <span class="mock-label">パスワード（確認）</span>
+              <input type="password" class="mock-input" value="••••••••" disabled>
+              <!-- アンチパターン: どちらを直せばいいか分からない -->
+              <span class="field-error">一致しません</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            「一致しません」— 何と一致しないのか文脈が不明。上のフィールドと下のフィールド、どちらを修正すべきか分からない。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 2: HTTPエラー
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">HTTPエラー <span>— 行き止まり、導線なし</span></h2>
+      <div class="card-grid">
+
+        <!-- 404 -->
+        <div class="card">
+          <div class="card-label">404 Not Found</div>
+          <div class="error-display">
+            <div class="fullscreen-error">
+              <div class="error-code">404</div>
+              <!-- アンチパターン: メッセージだけ。検索も戻るリンクもない -->
+              <div class="error-message">ページが見つかりません</div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            完全な行き止まり。トップへのリンクも検索フォームもない。ユーザーはブラウザの戻るボタンしか手段がない。
+          </div>
+        </div>
+
+        <!-- 500 -->
+        <div class="card">
+          <div class="card-label">500 Internal Server Error</div>
+          <div class="error-display">
+            <div class="fullscreen-error">
+              <div class="error-code">500</div>
+              <!-- アンチパターン: 技術用語がそのまま -->
+              <div class="error-message">Internal Server Error</div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            英語の技術用語そのまま。一般ユーザーには意味不明。再試行の案内も問い合わせ先もない。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 3: 権限・認証エラー
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">権限・認証エラー <span>— 威圧的な表現</span></h2>
+      <div class="card-grid">
+
+        <!-- アクセス拒否 -->
+        <div class="card">
+          <div class="card-label">403 Forbidden</div>
+          <div class="error-display">
+            <div class="alert-error">
+              <span class="alert-icon">⛔</span>
+              <!-- アンチパターン: 「拒否」は威圧的。誰に連絡すればいいか不明 -->
+              <span class="alert-text">アクセスが拒否されました</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            「拒否」は威圧的で、ユーザーが悪いことをしたかのような印象を与える。権限を得る方法の説明もない。
+          </div>
+        </div>
+
+        <!-- 認証切れ -->
+        <div class="card">
+          <div class="card-label">401 Unauthorized</div>
+          <div class="error-display">
+            <div class="alert-error">
+              <span class="alert-icon">🔒</span>
+              <!-- アンチパターン: 技術用語をそのまま -->
+              <span class="alert-text">認証エラー</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            「認証エラー」だけでは、ログインし直せばいいのか、アカウントに問題があるのか分からない。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 4: 通信・接続エラー
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">通信・接続エラー <span>— 対処法なし</span></h2>
+      <div class="card-grid">
+
+        <!-- タイムアウト -->
+        <div class="card">
+          <div class="card-label">リクエストタイムアウト</div>
+          <div class="error-display">
+            <div class="alert-error">
+              <span class="alert-icon">⏱</span>
+              <!-- アンチパターン: 「タイムアウトしました」だけ。再試行ボタンなし -->
+              <span class="alert-text">リクエストがタイムアウトしました</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            再試行ボタンがない。ユーザーはページをリロードするしかなく、入力内容が消える可能性がある。
+          </div>
+        </div>
+
+        <!-- ネットワークエラー -->
+        <div class="card">
+          <div class="card-label">ネットワーク接続</div>
+          <div class="error-display">
+            <div class="alert-error">
+              <span class="alert-icon">📡</span>
+              <!-- アンチパターン: 「接続エラー」だけ -->
+              <span class="alert-text">接続エラー</span>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            サーバー側の問題か、ユーザーのネットワークの問題か区別できない。具体的な対処法の案内がない。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         セクション 5: 検索・空状態
+         ======================================== -->
+    <section class="section">
+      <h2 class="section-title">検索結果・空状態 <span>— 手がかりなし</span></h2>
+      <div class="card-grid">
+
+        <!-- 検索結果なし -->
+        <div class="card">
+          <div class="card-label">検索結果ゼロ件</div>
+          <div class="error-display">
+            <div class="empty-state">
+              <div class="empty-icon">🔍</div>
+              <!-- アンチパターン: 検索キーワードの表示も代替案もない -->
+              <div class="empty-text">結果がありません</div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            何を検索したか表示されない。スペルミスの可能性や別のキーワードの提案もない。
+          </div>
+        </div>
+
+        <!-- データなし -->
+        <div class="card">
+          <div class="card-label">空のリスト</div>
+          <div class="error-display">
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <!-- アンチパターン: CTAもガイドもない -->
+              <div class="empty-text">データがありません</div>
+            </div>
+          </div>
+          <div class="annotation">
+            <strong>問題点:</strong>
+            データを作成する方法のガイドもCTAもない。ユーザーは何をすればいいか分からず離脱する。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

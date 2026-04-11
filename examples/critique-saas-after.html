@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     AFTER: zen-critique 統合批評デモ — SaaS「TaskFlow」複合画面
+
+     タイポグラフィ（zen-typeset）+ UIコピー（zen-clarify）+
+     サイト全体の設計品質を横断的に改善した統合版。
+
+     3画面構成:
+       1. #top       — トップページ（LP）
+       2. #login     — ログイン画面
+       3. #dashboard — ダッシュボード
+
+     改善ポイント:
+       [タイポグラフィ — zen-typeset 領域]
+         ✓ Inter + Noto Sans JP + 游ゴシック Medium で和欧混植
+         ✓ line-height: 1.8（本文）
+         ✓ Minor Third (1.2) モジュラースケール
+         ✓ letter-spacing: 0（日本語のデフォルトが最適）
+         ✓ font-weight: 500 中心（日本語は画数が多く 500 で十分）
+         ✓ font-feature-settings: "chws" 1, "tnum" 1
+         ✓ line-break: strict, overflow-wrap: anywhere
+
+       [UIコピー — zen-clarify 領域]
+         ✓ ナビゲーション日本語化
+         ✓ ボタン辞書形で統一（「ログインする」「始める」）
+         ✓ エラー文言に原因+対処法
+         ✓ 確認ダイアログの選択肢を具体的に
+         ✓ 空状態にCTAを添える
+         ✓ です/ます調で統一
+
+       [サイト全体品質 — critique 独自領域]
+         ✓ <html lang="ja"> 設定
+         ✓ 余白20%増し。カード内パディング24px（8の倍数）
+         ✓ ナビ・ボタン・コンテンツの言語を日本語で統一
+         ✓ 氏名フォーム「姓」「名」順
+         ✓ レスポンシブ対応（メディアクエリ）
+         ✓ aria-label 日本語設定
+         ✓ ダークモード考慮（prefers-color-scheme）
+         ✓ フォーカスリング表示
+     ============================================================ -->
+<html lang="ja"> <!-- 改善: lang属性を "ja" に修正 -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow — チームの生産性を最大化するプロジェクト管理ツール</title>
+  <!-- 改善: Noto Sans JP を追加、Inter と組み合わせて和欧混植 -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       AFTER: 統合改善 CSS
+
+       [タイポグラフィ改善]
+       - Inter + Noto Sans JP + 游ゴシック Medium で和欧混植
+       - line-height: 1.8（本文）、1.4（見出し）
+       - Minor Third (1.2) モジュラースケール
+       - letter-spacing: 0（日本語のデフォルトが最適）
+       - font-weight: 500 中心
+       - font-feature-settings: "chws" 1 で約物詰め
+       - line-break: strict で禁則処理
+
+       [レイアウト改善]
+       - max-width + 左右 auto マージンでレスポンシブ
+       - 8の倍数余白（8, 16, 24, 32, 48, 64...）
+       - カード内パディング 24px（12px → 24px）
+       - メディアクエリでモバイル対応
+
+       [アクセシビリティ改善]
+       - aria-label 日本語設定
+       - フォーカスリング表示
+       - prefers-color-scheme 対応
+       - prefers-reduced-motion 対応
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* === モジュラースケール (ratio: 1.2 = Minor Third) === */
+      --text-xs:   0.694rem;  /* ≈11.1px — base ÷ 1.2² */
+      --text-sm:   0.833rem;  /* ≈13.3px — base ÷ 1.2  */
+      --text-base: 1rem;      /* 16px    — base         */
+      --text-lg:   1.2rem;    /* ≈19.2px — base × 1.2   */
+      --text-xl:   1.44rem;   /* ≈23px   — base × 1.2²  */
+      --text-2xl:  1.728rem;  /* ≈27.6px — base × 1.2³  */
+      --text-3xl:  2.074rem;  /* ≈33.2px — base × 1.2⁴  */
+
+      /* === 8の倍数余白 === */
+      --space-xs:  0.5rem;    /* 8px  */
+      --space-sm:  1rem;      /* 16px */
+      --space-md:  1.5rem;    /* 24px */
+      --space-lg:  2rem;      /* 32px */
+      --space-xl:  3rem;      /* 48px */
+      --space-2xl: 4rem;      /* 64px */
+
+      /* === カラーシステム === */
+      --color-primary: #2563eb;
+      --color-primary-dark: #1d4ed8;
+      --color-text: #1a1a2e;
+      --color-text-secondary: #4a5568;
+      --color-text-muted: #718096;
+      --color-border: #e2e8f0;
+      --color-bg: #ffffff;
+      --color-bg-subtle: #f7fafc;
+      --color-bg-muted: #edf2f7;
+      --color-error: #c53030;
+      --color-error-bg: #fff5f5;
+      --color-success: #16a34a;
+      --color-success-bg: #f0fff4;
+      --color-warning: #b45309;
+      --color-warning-bg: #fffbeb;
+    }
+
+    /* 改善: ダークモード対応 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-text: #e2e8f0;
+        --color-text-secondary: #a0aec0;
+        --color-text-muted: #718096;
+        --color-border: #2d3748;
+        --color-bg: #1a202c;
+        --color-bg-subtle: #2d3748;
+        --color-bg-muted: #4a5568;
+        --color-error: #fc8181;
+        --color-error-bg: #2d1f1f;
+        --color-success: #68d391;
+        --color-success-bg: #1f2d1f;
+        --color-warning: #f6ad55;
+        --color-warning-bg: #2d2a1f;
+      }
+    }
+
+    body {
+      /* 改善: Inter + Noto Sans JP + 游ゴシック Medium で和欧混植 */
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
+      /* 改善: 16px ベース（モジュラースケールの base） */
+      font-size: var(--text-base);
+      /* 改善: line-height 1.8（日本語の視覚密度に最適） */
+      line-height: 1.8;
+      color: var(--color-text);
+      background: var(--color-bg);
+      /* 改善: letter-spacing 0（日本語はデフォルトが最適） */
+      letter-spacing: 0;
+      /* 改善: 禁則処理 */
+      line-break: strict;
+      overflow-wrap: anywhere;
+      /* 改善: 約物幅詰め + 等幅数字 */
+      font-feature-settings: "chws" 1, "tnum" 1;
+      /* 改善: テキストレンダリング最適化 */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 改善: prefers-reduced-motion 対応 */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
+      }
+    }
+
+    /* 改善: フォーカスリング */
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* === 共通ナビゲーション === */
+    /* 改善: ナビを日本語化、レスポンシブ対応 */
+    header {
+      /* 改善: 8の倍数余白 */
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      /* 改善: 固定幅→最大幅+auto マージン */
+      max-width: 1024px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      /* 改善: モジュラースケールに乗ったサイズ */
+      font-size: var(--text-xl);
+      /* 改善: 500 で十分な存在感 */
+      font-weight: 600;
+      color: var(--color-primary);
+      /* 改善: 見出し用のプロポーショナル字詰め */
+      font-feature-settings: "palt" 1;
+    }
+
+    nav a {
+      margin-left: var(--space-md);
+      text-decoration: none;
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+      /* 改善: 500 に統一 */
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover {
+      color: var(--color-primary);
+    }
+
+    /* === セクション区切り === */
+    .section-divider {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: var(--space-2xl) 0 var(--space-md);
+      border-top: 2px solid var(--color-primary);
+      text-align: center;
+    }
+
+    .section-divider h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ==========================================
+       セクション1: トップページ（LP）
+       改善:
+         - レスポンシブレイアウト
+         - 余白を8の倍数に
+         - フォントサイズをモジュラースケールに
+         - CTAボタンを日本語化
+       ========================================== */
+
+    .hero {
+      max-width: 1024px;
+      margin: 0 auto;
+      /* 改善: 8の倍数余白 */
+      padding: var(--space-2xl) var(--space-lg);
+      text-align: center;
+    }
+
+    .hero h1 {
+      /* 改善: モジュラースケール text-3xl (≈33px) */
+      font-size: var(--text-3xl);
+      /* 改善: 見出しは 600。700 は太すぎる */
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-md);
+      /* 改善: 見出しの行間は狭めに */
+      line-height: 1.4;
+      /* 改善: プロポーショナル字詰め */
+      font-feature-settings: "palt" 1;
+    }
+
+    .hero p {
+      /* 改善: モジュラースケール text-lg (≈19px) */
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-lg);
+      /* 改善: 行長制限。日本語は36em程度が読みやすい */
+      max-width: 36em;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero .cta-btn {
+      display: inline-block;
+      background: var(--color-primary);
+      color: #fff;
+      /* 改善: 8の倍数余白 */
+      padding: 12px var(--space-lg);
+      border: none;
+      /* 改善: 角丸を適度に */
+      border-radius: 8px;
+      font-size: var(--text-base);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .hero .cta-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* 機能紹介カード */
+    .features {
+      max-width: 1024px;
+      margin: 0 auto;
+      display: flex;
+      gap: var(--space-md);
+      /* 改善: 8の倍数余白 */
+      padding: var(--space-lg) var(--space-lg) var(--space-2xl);
+    }
+
+    .feature-card {
+      flex: 1;
+      border: 1px solid var(--color-border);
+      /* 改善: 角丸を統一 */
+      border-radius: 12px;
+      /* 改善: パディング 24px（12px → 24px） */
+      padding: var(--space-md);
+      background: var(--color-bg);
+    }
+
+    .feature-card .icon {
+      font-size: var(--text-2xl);
+      margin-bottom: var(--space-xs);
+    }
+
+    .feature-card h3 {
+      /* 改善: モジュラースケール */
+      font-size: var(--text-lg);
+      /* 改善: 600 に統一 */
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      color: var(--color-text);
+      line-height: 1.4;
+      font-feature-settings: "palt" 1;
+    }
+
+    .feature-card p {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+    }
+
+    /* LP下部CTA */
+    .bottom-cta {
+      max-width: 1024px;
+      margin: 0 auto;
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+      background: var(--color-bg-subtle);
+      border-radius: 16px;
+    }
+
+    .bottom-cta h2 {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      line-height: 1.4;
+      font-feature-settings: "palt" 1;
+    }
+
+    .bottom-cta p {
+      font-size: var(--text-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-md);
+      max-width: 36em;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: var(--space-md);
+    }
+
+    .bottom-cta .cta-btn {
+      display: inline-block;
+      background: var(--color-primary);
+      color: #fff;
+      padding: 12px var(--space-lg);
+      border: none;
+      border-radius: 8px;
+      font-size: var(--text-base);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .bottom-cta .cta-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* ==========================================
+       セクション2: ログイン画面
+       改善:
+         - 氏名を「姓」「名」順に
+         - ボタンを日本語化
+         - エラー文言に原因+対処法
+         - 余白を広く
+       ========================================== */
+
+    .login-page {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-lg);
+      display: flex;
+      justify-content: center;
+    }
+
+    .login-box {
+      width: 420px;
+      max-width: 100%;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      /* 改善: パディング 32px（25px → 32px） */
+      padding: var(--space-lg);
+      background: var(--color-bg);
+    }
+
+    .login-box h2 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      text-align: center;
+      font-feature-settings: "palt" 1;
+    }
+
+    .form-group {
+      margin-bottom: var(--space-sm);
+    }
+
+    .form-group label {
+      display: block;
+      font-size: var(--text-sm);
+      /* 改善: 500 に統一 */
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--color-text);
+    }
+
+    .form-group input {
+      width: 100%;
+      /* 改善: パディング広め */
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: var(--text-base);
+      /* 改善: 本文と同じフォントスタック */
+      font-family: "Inter", "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
+      color: var(--color-text);
+      background: var(--color-bg);
+      transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus {
+      border-color: var(--color-primary);
+    }
+
+    /* 改善: エラーメッセージに原因+対処法、アイコン付き */
+    .error-msg {
+      color: var(--color-error);
+      font-size: var(--text-sm);
+      margin-top: 6px;
+      /* 改善: 500 に。700 は過剰 */
+      font-weight: 500;
+      /* 改善: エラー背景で視認性アップ */
+      background: var(--color-error-bg);
+      padding: 8px 12px;
+      border-radius: 6px;
+      line-height: 1.6;
+    }
+
+    .login-box .submit-btn {
+      width: 100%;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      /* 改善: パディング広め */
+      padding: 12px;
+      border-radius: 8px;
+      font-size: var(--text-base);
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: var(--space-sm);
+      transition: background 0.2s ease;
+    }
+
+    .login-box .submit-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .login-box .links {
+      text-align: center;
+      margin-top: var(--space-sm);
+      font-size: var(--text-sm);
+    }
+
+    .login-box .links a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .login-box .links a:hover {
+      text-decoration: underline;
+    }
+
+    /* 改善: 氏名フォームのスタイル */
+    .name-fields {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .name-fields .form-group {
+      flex: 1;
+    }
+
+    /* ==========================================
+       セクション3: ダッシュボード
+       改善:
+         - サイドナビを日本語化
+         - KPIカードのパディング24px
+         - テーブル行の余白拡大
+         - 空状態にCTA
+         - aria-label 設定
+       ========================================== */
+
+    .dashboard {
+      max-width: 1024px;
+      margin: 0 auto;
+      display: flex;
+      padding: var(--space-md) 0;
+    }
+
+    /* サイドナビ */
+    .sidebar {
+      width: 220px;
+      border-right: 1px solid var(--color-border);
+      /* 改善: 余白拡大 */
+      padding: var(--space-md);
+    }
+
+    .sidebar h3 {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-sm);
+      /* 改善: letter-spacing 控えめに */
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .sidebar a:hover {
+      background: var(--color-bg-muted);
+    }
+
+    .sidebar a.active {
+      background: #eff6ff;
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+
+    /* 改善: アイコンボタンに適切なスタイルとスペース */
+    .sidebar .icon-btn-group {
+      display: flex;
+      gap: var(--space-xs);
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .sidebar .icon-btn {
+      background: none;
+      border: 1px solid var(--color-border);
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .sidebar .icon-btn:hover {
+      background: var(--color-bg-muted);
+    }
+
+    /* メインコンテンツ */
+    .main-content {
+      flex: 1;
+      /* 改善: 余白拡大 */
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .main-content h2 {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      line-height: 1.4;
+      font-feature-settings: "palt" 1;
+    }
+
+    /* KPIカード */
+    .kpi-cards {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    .kpi-card {
+      flex: 1;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      /* 改善: パディング 24px（12px → 24px） */
+      padding: var(--space-md);
+      background: var(--color-bg);
+    }
+
+    .kpi-card .kpi-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .kpi-card .kpi-value {
+      /* 改善: モジュラースケール */
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      color: var(--color-text);
+      /* 改善: 等幅数字 */
+      font-feature-settings: "tnum" 1;
+    }
+
+    .kpi-card .kpi-change {
+      font-size: var(--text-xs);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .kpi-change.up { color: var(--color-success); }
+    .kpi-change.down { color: var(--color-error); }
+
+    /* テーブル */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      text-align: left;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      /* 改善: 行の余白を拡大 */
+      padding: 12px var(--space-sm);
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .data-table td {
+      font-size: var(--text-sm);
+      /* 改善: 行の余白を拡大（10px → 14px） */
+      padding: 14px var(--space-sm);
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text);
+    }
+
+    .data-table tr:hover {
+      background: var(--color-bg-subtle);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+
+    .status-badge.complete { background: var(--color-success-bg); color: var(--color-success); }
+    .status-badge.progress { background: #eff6ff; color: var(--color-primary); }
+    .status-badge.pending { background: var(--color-warning-bg); color: var(--color-warning); }
+
+    /* 改善: 空状態にCTA付き */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-2xl) var(--space-lg);
+      color: var(--color-text-muted);
+      font-size: var(--text-base);
+      border: 1px dashed var(--color-border);
+      border-radius: 12px;
+      margin-top: var(--space-md);
+    }
+
+    .empty-state p {
+      margin-bottom: var(--space-xs);
+    }
+
+    .empty-state .empty-cta {
+      display: inline-block;
+      margin-top: var(--space-sm);
+      background: var(--color-primary);
+      color: #fff;
+      padding: 8px var(--space-md);
+      border: none;
+      border-radius: 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .empty-state .empty-cta:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* 確認ダイアログ */
+    .confirm-dialog {
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      /* 改善: パディング拡大 */
+      padding: var(--space-md);
+      max-width: 400px;
+      margin: var(--space-md) auto;
+      text-align: center;
+      background: var(--color-bg);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .confirm-dialog .dialog-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+      color: var(--color-text);
+    }
+
+    .confirm-dialog .dialog-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-md);
+      line-height: 1.8;
+    }
+
+    .confirm-dialog .dialog-btns {
+      display: flex;
+      gap: var(--space-xs);
+      justify-content: center;
+    }
+
+    .confirm-dialog .btn-danger {
+      background: var(--color-error);
+      color: #fff;
+      border: none;
+      padding: 10px var(--space-md);
+      border-radius: 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .confirm-dialog .btn-danger:hover {
+      opacity: 0.9;
+    }
+
+    .confirm-dialog .btn-cancel {
+      background: var(--color-bg-muted);
+      color: var(--color-text-secondary);
+      border: none;
+      padding: 10px var(--space-md);
+      border-radius: 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .confirm-dialog .btn-cancel:hover {
+      background: var(--color-border);
+    }
+
+    /* 改善: アクションボタン群 */
+    .action-btns {
+      display: flex;
+      gap: var(--space-xs);
+      justify-content: flex-end;
+      margin-top: var(--space-md);
+    }
+
+    .btn-secondary {
+      background: var(--color-bg-muted);
+      color: var(--color-text-secondary);
+      border: none;
+      padding: 10px var(--space-md);
+      border-radius: 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-border);
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      padding: 10px var(--space-md);
+      border-radius: 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* ==========================================
+       レスポンシブ対応
+       改善: 固定幅 → メディアクエリでモバイル対応
+       ========================================== */
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: var(--space-xs);
+        padding: var(--space-sm);
+      }
+
+      nav a {
+        margin-left: var(--space-sm);
+      }
+
+      .hero {
+        padding: var(--space-xl) var(--space-sm);
+      }
+
+      .hero h1 {
+        font-size: var(--text-2xl);
+      }
+
+      .features {
+        flex-direction: column;
+        padding: var(--space-md) var(--space-sm);
+      }
+
+      .login-box {
+        width: 100%;
+      }
+
+      .name-fields {
+        flex-direction: column;
+      }
+
+      .dashboard {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .kpi-cards {
+        flex-direction: column;
+      }
+
+      .data-table {
+        font-size: var(--text-sm);
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 10px 8px;
+      }
+    }
+
+    /* バリデーション結果ボックス */
+    .validation-box {
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: var(--space-md);
+      max-width: 420px;
+      margin: 0 auto;
+      background: var(--color-bg);
+    }
+
+    .validation-box h4 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text);
+      margin-bottom: var(--space-xs);
+    }
+
+    .validation-box ul {
+      font-size: var(--text-sm);
+      color: var(--color-error);
+      padding-left: 1.5em;
+      line-height: 1.8;
+    }
+
+    .validation-box li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       共通ヘッダー
+       改善:
+         - ナビを日本語化（Home→ホーム, Features→機能, etc.）
+         - ナビ・コンテンツの言語を統一
+         - レスポンシブ対応
+       ============================================================ -->
+  <header>
+    <div class="logo">TaskFlow</div>
+    <nav>
+      <!-- 改善: ナビを日本語化。ブランド名「TaskFlow」のみ英語で残す -->
+      <a href="#top">ホーム</a>
+      <a href="#top">機能</a>
+      <a href="#top">料金</a>
+      <a href="#login">ログイン</a>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       セクション1: トップページ（LP）
+       改善:
+         - CTAボタンを日本語化（辞書形「無料で始める」）
+         - 敬語をです/ます調で統一
+         - 行長制限 max-width: 36em
+         - 余白を8の倍数に統一
+         - モジュラースケールでフォントサイズ統一
+       ============================================================ -->
+  <section id="top">
+
+    <div class="hero">
+      <!-- 改善: font-weight 600（700→600）、palt で字詰め -->
+      <h1>チームの生産性を、もっとシンプルに。</h1>
+      <!-- 改善: max-width: 36em で行長制限、です/ます調で統一 -->
+      <p>TaskFlowは、タスク管理・進捗共有・チームコラボレーションをひとつのプラットフォームに統合したプロジェクト管理ツールです。複雑なワークフローもドラッグ&ドロップで直感的に構築できます。</p>
+      <!-- 改善: CTAを日本語化。辞書形「無料で始める」 -->
+      <a href="#" class="cta-btn">無料で始める</a>
+    </div>
+
+    <div class="features">
+      <div class="feature-card">
+        <!-- 改善: aria-label でアイコンの意味を明示 -->
+        <div class="icon" role="img" aria-label="タスクボード">📋</div>
+        <h3>タスクボード</h3>
+        <!-- 改善: です/ます調で統一 -->
+        <p>カンバン・ガント・リストの3つのビューでタスクを管理できます。チームの状況が一目でわかり、ドラッグ&ドロップで直感的に操作できます。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" role="img" aria-label="タイムトラッキング">⏱️</div>
+        <h3>タイムトラッキング</h3>
+        <!-- 改善: です/ます調で統一 -->
+        <p>ワンクリックで作業時間を記録できます。レポート機能で稼働状況を可視化して、チームのリソース配分を最適化できます。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" role="img" aria-label="インテグレーション">🔗</div>
+        <h3>インテグレーション</h3>
+        <!-- 改善: です/ます調で統一 -->
+        <p>Slack、GitHub、Google Workspaceなどの主要ツールとシームレスに連携できます。既存のワークフローを壊さずに導入できます。</p>
+      </div>
+    </div>
+
+    <div class="bottom-cta">
+      <h2>今すぐ始めましょう</h2>
+      <!-- 改善: です/ます調で統一 -->
+      <p>14日間の無料トライアルで全機能をお試しいただけます。クレジットカードは不要です。</p>
+      <!-- 改善: CTAを日本語化。辞書形「無料トライアルを始める」 -->
+      <a href="#" class="cta-btn">無料トライアルを始める</a>
+    </div>
+
+  </section>
+
+  <div class="section-divider">
+    <h2>— ログイン —</h2>
+  </div>
+
+  <!-- ============================================================
+       セクション2: ログイン画面
+       改善:
+         - 氏名を「姓」「名」の日本語順に
+         - ボタンを日本語化（Submit→ログインする）
+         - エラー文言に原因+対処法
+         - パスワードリセットリンクを丁寧に
+         - 確認ダイアログの選択肢を具体的に
+         - 余白を広く
+       ============================================================ -->
+  <section id="login">
+
+    <div class="login-page">
+      <div class="login-box">
+        <h2>ログイン</h2>
+
+        <!-- 改善: 氏名を「姓」「名」の日本語順に変更 -->
+        <div class="name-fields">
+          <div class="form-group">
+            <!-- 改善: First Name → 姓 -->
+            <label for="last-name">姓</label>
+            <input type="text" id="last-name" placeholder="山田" autocomplete="family-name">
+          </div>
+          <div class="form-group">
+            <!-- 改善: Last Name → 名 -->
+            <label for="first-name">名</label>
+            <input type="text" id="first-name" placeholder="太郎" autocomplete="given-name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+          <!-- 改善: エラー文言に原因+対処法を明記 -->
+          <div class="error-msg">メールアドレスの形式が正しくありません。「example@domain.com」の形式で入力してください。</div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">パスワード</label>
+          <input type="password" id="password" placeholder="8文字以上の英数字" autocomplete="current-password">
+          <!-- 改善: エラー文言に具体的な要件を記載 -->
+          <div class="error-msg">パスワードは8文字以上で、英字と数字を含めてください。</div>
+        </div>
+
+        <!-- 改善: ボタンを日本語化。辞書形「ログインする」 -->
+        <button class="submit-btn">ログインする</button>
+
+        <div class="links">
+          <!-- 改善: リンクテキストを丁寧に -->
+          <a href="#">パスワードをお忘れの方はこちら</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- バリデーションエラー表示例 -->
+    <div style="max-width: 1024px; margin: 0 auto; padding: 0 var(--space-lg) var(--space-lg);">
+      <div class="validation-box">
+        <h4>入力内容をご確認ください</h4>
+        <ul>
+          <!-- 改善: エラーに原因+対処法を明記 -->
+          <li>メールアドレスの形式が正しくありません。「@」を含むアドレスを入力してください。</li>
+          <li>パスワードが短すぎます。8文字以上で入力してください。</li>
+          <li>姓を入力してください。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 確認ダイアログ例 -->
+    <div style="max-width: 1024px; margin: 0 auto; padding: 0 var(--space-lg) var(--space-lg);">
+      <div class="confirm-dialog">
+        <!-- 改善: タイトルを具体的に -->
+        <p class="dialog-title">アカウントを登録しますか？</p>
+        <!-- 改善: 説明文で何が起こるか明示 -->
+        <p class="dialog-desc">入力した内容でアカウントを作成します。登録後、確認メールをお送りします。</p>
+        <div class="dialog-btns">
+          <!-- 改善: 「はい/いいえ」→ 具体的なアクション名 -->
+          <button class="btn-danger" style="background: var(--color-primary);">登録する</button>
+          <button class="btn-cancel">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="section-divider">
+    <h2>— ダッシュボード —</h2>
+  </div>
+
+  <!-- ============================================================
+       セクション3: ダッシュボード
+       改善:
+         - サイドナビを日本語化
+         - KPIカードのパディング24px
+         - テーブル行の余白拡大
+         - 空状態にCTA付き
+         - aria-label 日本語設定
+         - アイコンボタンにaria-label設定
+       ============================================================ -->
+  <section id="dashboard">
+
+    <div class="dashboard">
+
+      <!-- サイドナビ -->
+      <div class="sidebar">
+        <!-- 改善: 見出しを日本語化 -->
+        <h3>メニュー</h3>
+        <!-- 改善: ナビ項目を日本語化 -->
+        <a href="#" class="active">ダッシュボード</a>
+        <a href="#">プロジェクト</a>
+        <a href="#">タスク</a>
+        <a href="#">メンバー</a>
+        <a href="#">設定</a>
+        <!-- 改善: aria-label を日本語で設定 -->
+        <div class="icon-btn-group">
+          <button class="icon-btn" aria-label="設定を開く">⚙️</button>
+          <button class="icon-btn" aria-label="通知を確認する">🔔</button>
+          <button class="icon-btn" aria-label="ヘルプを表示する">❓</button>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <h2>ダッシュボード</h2>
+
+        <!-- KPIカード -->
+        <div class="kpi-cards">
+          <div class="kpi-card">
+            <div class="kpi-label">総タスク数</div>
+            <div class="kpi-value">1,247</div>
+            <div class="kpi-change up">前月比 +12%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">完了率</div>
+            <div class="kpi-value">73.2%</div>
+            <div class="kpi-change up">前月比 +5.1pt</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">アクティブメンバー</div>
+            <div class="kpi-value">38</div>
+            <div class="kpi-change down">前月比 −2名</div>
+          </div>
+        </div>
+
+        <!-- タスクテーブル -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>タスク名</th>
+              <th>担当者</th>
+              <th>ステータス</th>
+              <th>期限</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ランディングページのデザインリニューアル</td>
+              <td>山田太郎</td>
+              <td><span class="status-badge progress">進行中</span></td>
+              <td>2026/04/15</td>
+            </tr>
+            <tr>
+              <td>APIエンドポイントの認証機能を実装する</td>
+              <td>佐藤花子</td>
+              <td><span class="status-badge complete">完了</span></td>
+              <td>2026/04/10</td>
+            </tr>
+            <tr>
+              <td>パフォーマンステストの実施とレポート作成</td>
+              <td>鈴木一郎</td>
+              <td><span class="status-badge pending">未着手</span></td>
+              <td>2026/04/20</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 改善: 空状態にCTA付き、日本語化 -->
+        <div class="empty-state">
+          <p>まだデータがありません</p>
+          <p>タスクを作成して、チームの進捗管理を始めましょう。</p>
+          <a href="#" class="empty-cta">タスクを作成する</a>
+        </div>
+
+        <!-- 削除確認ダイアログ -->
+        <div class="confirm-dialog">
+          <!-- 改善: 具体的なタイトル -->
+          <p class="dialog-title">このタスクを削除しますか？</p>
+          <!-- 改善: 結果を明示。不可逆であることを伝える -->
+          <p class="dialog-desc">「ランディングページのデザインリニューアル」を削除します。この操作は元に戻せません。</p>
+          <div class="dialog-btns">
+            <!-- 改善: 「はい/いいえ」→ 具体的なアクション名 -->
+            <button class="btn-danger">削除する</button>
+            <button class="btn-cancel">キャンセル</button>
+          </div>
+        </div>
+
+        <!-- 改善: ボタンを日本語化 -->
+        <div class="action-btns">
+          <button class="btn-secondary">キャンセル</button>
+          <button class="btn-primary">変更を保存する</button>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+</body>
+</html>

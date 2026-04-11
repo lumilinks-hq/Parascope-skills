@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zen Skills — Before / After 比較</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Hiragino Sans", "Noto Sans CJK JP", sans-serif; background: #f5f5f5; color: #333; }
+
+    .header { padding: 1rem 2rem; text-align: center; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    .header h1 { font-size: 1.125rem; font-weight: 600; }
+
+    .toolbar { display: flex; justify-content: center; align-items: center; gap: 0.375rem; padding: 0.625rem; background: #fff; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+    .tab {
+      padding: 0.375rem 0.75rem; border: 1px solid #d0d0d0; border-radius: 6px;
+      background: #fff; color: #666; cursor: pointer; font-size: 0.7rem;
+      transition: all 0.15s;
+    }
+    .tab:hover { background: #f0f0f0; color: #333; }
+    .tab.active { background: #111; color: #fff; border-color: #111; }
+
+    .sep { width: 1px; height: 20px; background: #d0d0d0; margin: 0 0.25rem; }
+
+    .view-btn {
+      padding: 0.375rem 0.625rem; border: 1px solid #d0d0d0; border-radius: 6px;
+      background: #fff; color: #666; cursor: pointer; font-size: 0.65rem;
+      transition: all 0.15s;
+    }
+    .view-btn:hover { background: #f0f0f0; color: #333; }
+    .view-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+    .compare-container { display: none; }
+    .compare-container.active { display: block; }
+
+    .labels { display: flex; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    .labels span {
+      flex: 1; text-align: center;
+      padding: 0.375rem; font-size: 0.675rem; font-weight: 600; letter-spacing: 0.02em;
+    }
+    .labels .lb { color: #dc2626; }
+    .labels .la { color: #16a34a; }
+
+    .frames { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 120px); }
+    .frames iframe { width: 100%; height: 100%; border: none; background: #fff; }
+    .frames iframe:first-child { border-right: 1px solid #e0e0e0; }
+
+    /* Full view mode */
+    body.view-before .labels .la,
+    body.view-after .labels .lb { display: none; }
+    body.view-before .labels .lb,
+    body.view-after .labels .la { flex: 1; }
+
+    body.view-before .frames { grid-template-columns: 1fr; }
+    body.view-before .frames iframe:last-child { display: none; }
+    body.view-before .frames iframe:first-child { border-right: none; }
+
+    body.view-after .frames { grid-template-columns: 1fr; }
+    body.view-after .frames iframe:first-child { display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Zen Skills — Before / After</h1>
+  </div>
+
+  <div class="toolbar">
+    <button class="tab active" onclick="show('typeset-lp', this)">Typeset: LP</button>
+    <button class="tab" onclick="show('typeset-blog', this)">Typeset: ブログ</button>
+    <button class="tab" onclick="show('typeset-dash', this)">Typeset: ダッシュボード</button>
+    <button class="tab" onclick="show('clarify-settings', this)">Clarify: 設定画面</button>
+    <button class="tab" onclick="show('clarify-errors', this)">Clarify: エラー集</button>
+    <button class="tab" onclick="show('critique-saas', this)">Critique: SaaS複合</button>
+    <div class="sep"></div>
+    <button class="view-btn" onclick="setView('before', this)">Before のみ</button>
+    <button class="view-btn active" onclick="setView('split', this)">並べて比較</button>
+    <button class="view-btn" onclick="setView('after', this)">After のみ</button>
+  </div>
+
+  <div class="compare-container active" id="typeset-lp">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-typeset</span></div>
+    <div class="frames">
+      <iframe src="before.html"></iframe>
+      <iframe src="after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="typeset-blog">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-typeset</span></div>
+    <div class="frames">
+      <iframe src="blog-before.html"></iframe>
+      <iframe src="blog-after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="typeset-dash">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-typeset</span></div>
+    <div class="frames">
+      <iframe src="dashboard-before.html"></iframe>
+      <iframe src="dashboard-after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="clarify-settings">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-clarify</span></div>
+    <div class="frames">
+      <iframe src="clarify-settings-before.html"></iframe>
+      <iframe src="clarify-settings-after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="clarify-errors">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-clarify</span></div>
+    <div class="frames">
+      <iframe src="clarify-errors-before.html"></iframe>
+      <iframe src="clarify-errors-after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="critique-saas">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-critique</span></div>
+    <div class="frames">
+      <iframe src="critique-saas-before.html"></iframe>
+      <iframe src="critique-saas-after.html"></iframe>
+    </div>
+  </div>
+
+  <script>
+    function show(id, btn) {
+      document.querySelectorAll('.compare-container').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function setView(mode, btn) {
+      document.body.classList.remove('view-before', 'view-after');
+      if (mode !== 'split') document.body.classList.add('view-' + mode);
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
