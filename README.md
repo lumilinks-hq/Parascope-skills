@@ -7,7 +7,7 @@ Japanese Design Skills for AI Coding Agents.
 ## Install
 
 ```bash
-npx skills add parascope/zen
+npx skills add kgsi/zen
 ```
 
 ## Skills
