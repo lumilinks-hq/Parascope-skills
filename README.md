@@ -29,6 +29,10 @@ npx skills add kgsi/zen
 - 約物 — `palt` / `halt` / `chws` の使い分け
 - ウェイト — 日本語フォントは画数が多く、500 で十分な太さがある
 - 禁則処理 — `line-break: strict`
+- プロファイル別推奨値 — media / saas / docs / dashboard で最適値が違う
+- Reject / Warn 条件 — `break-all` 全体適用、本文の過剰な `letter-spacing` 等は即差し戻し
+- 責務分離 — 本文 / 見出し / 表 / フォームのルールを分けて評価
+- CSSレシピ — 修正提案時に使える再利用可能なCSS断片
 
 **設計思想:**
 
@@ -65,6 +69,7 @@ npx skills add kgsi/zen
 - レスポンシブ — 見出しの不自然な改行、ボタンの折り返し
 - ダークモード — 日本語フォントの可読性補正
 - アクセシビリティ — `lang="ja"`、コントラスト比
+- 壊れやすい場所チェック — 本文と見出しの混同、`break-all` 乱用、表/フォーム分離、mixed-script 崩れ
 
 ## Why "Zen"
 

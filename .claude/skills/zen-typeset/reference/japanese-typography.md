@@ -382,3 +382,274 @@ const notoSansJP = Noto_Sans_JP({
 ### 読み込むウェイトを絞る
 
 日本語フォントは1ウェイトあたり数百KB〜数MB。必要なウェイトだけ読み込む。3ウェイト以内が理想。
+
+## 11. プロファイル別推奨値
+
+日本語UIは一枚岩ではない。記事メディアと業務UIでは、正解の密度が違う。技術文書とダッシュボードでは、見出しの役割も表の扱いも違う。用途に応じたプロファイルで評価する。
+
+### プロファイル一覧
+
+**media** — 長文読解向け。本文の呼吸を優先し、行間を広めに取る。note、ブログ、オウンドメディア、インタビュー記事、長文読み物。
+
+**saas** — 業務UI向け。可読性を落とさず、密度と安定性を優先する。管理画面、設定画面、社内業務ツール、B2B SaaS。
+
+**docs** — 技術文書向け。本文、コード、見出し、表、注釈の切り分けを重視する。開発者向け文書、ナレッジベース、ヘルプセンター。
+
+**dashboard** — 高密度情報向け。表、数値、ラベル、カードの詰まりすぎを避けつつ、視線移動を短く保つ。BI画面、KPI画面、運用監視画面。
+
+### 推奨値テーブル
+
+| 項目 | media | saas | docs | dashboard |
+|------|-------|------|------|-----------|
+| 本文 font-size | 18px (1.125rem) | 14px (0.875rem) | 16px (1rem) | 14px (0.875rem) |
+| 本文 line-height | 1.8-2.0 | 1.5-1.65 | 1.7-1.8 | 1.4-1.55 |
+| 本文 letter-spacing | normal-0.02em | 0 | normal | 0 |
+| 見出し line-height | 1.25-1.4 | 1.3-1.45 | 1.35-1.45 | 1.2-1.35 |
+| 見出し font-weight | 700 | 500-600 | 500-600 | 500-600 |
+| 行長（本文） | 38-44em | — | 40-45em | — |
+| スケール比 | 1.25-1.333 | 1.2 | 1.25 | 1.2 |
+| 密度方針 | airy | compact | balanced | compact |
+| キャプション font-size | 14px | 12px | 13px | 12px |
+| キャプション line-height | 1.7 | 1.45 | 1.6 | 1.4 |
+
+### プロファイルの選び方
+
+- 対象サイトの主要な用途で判定する。複数の性格を持つ場合は主要な画面の用途で選ぶ
+- 行長制限（`max-width`）は media と docs にのみ適用。saas と dashboard はレイアウトのコンテナ幅に従う
+- saas / dashboard では本文の font-size が小さくなるため、コントラスト比と可読性に特に注意
+- プロファイルの値は出発点。プロダクト固有の調整は必要に応じて行う
+
+## 12. Reject / Warn 条件
+
+タイポグラフィ評価で、重大度を明確に分ける。Reject は即修正が必要な問題。Warn は改善を推奨する問題。
+
+### Reject（差し戻し）
+
+以下のいずれかに当てはまる場合、❌ として優先的に報告する。
+
+**R1. `word-break: break-all` がテキスト要素全体に適用されている**
+日本語本文、見出し、フォームの可読性を壊す。URL対策と日本語の禁則寄りの扱いと mixed-script の見出し調整は、本来は別々に考えるべき。
+
+**R2. 本文に `letter-spacing: 0.05em` 以上が適用されている**
+本文の苦しさは字間不足ではなく、行間不足や折り返し設計の粗さから来ていることが多い。本文の不快感を tracking でごまかすと別の場所が崩れる。
+
+**R3. 日本語本文の `line-height` が 1.5 未満**
+日本語は全角文字の密度が高く、英語より広い行間が必要。1.5 未満は長文で読みにくい。強い理由と実画面確認がない限り差し戻す。
+
+**R4. 日本語フォントが一切指定されていない**
+和文フォントの描画責任をブラウザ既定に丸投げしない。font-family に日本語フォントを明示する。
+
+**R5. `palt` が本文全体に適用されている（実読確認なし）**
+`palt` は仮名の字幅も変える。本文への一括適用は副作用が出やすい。見出し・ナビゲーション等の短いテキストに限定する。
+
+**R6. 表やフォームが本文のルールをそのまま継承している**
+記事本文で気持ちよく読める line-height は、表やフォームにはそのまま使えない。逆に、表に合わせた詰め方を本文へ持ち込むと長文が読みにくくなる。役割ごとに分離する。
+
+### Warn（改善推奨）
+
+以下に当てはまる場合は ⚠️ として報告し、理由と確認結果を添える。
+
+**W1. `ch` 単位で行長を指定している**
+`ch` は半角文字 "0" の幅基準。日本語全角文字はその約2倍で、環境差も大きい。`em` を使う。
+
+**W2. 4ウェイト以上のフォントを読み込んでいる**
+日本語フォントは1ウェイトあたり数百KB〜数MB。パフォーマンスへの影響が大きい。
+
+**W3. 見出しのモバイル折り返しを確認していない**
+PC表示だけで判断しない。日本語の見出しは意味の途中で改行されやすい。
+
+**W4. mixed-script を含む見出しを確認していない**
+日本語 + 英語サービス名、英単語、略称が入る場合は見た目のバランスを確認する。
+
+**W5. Windows 描画を考慮していない**
+macOS だけで見て終わると、游ゴシック問題をはじめ日本語描画の印象差が大きく出る。
+
+**W6. `text-autospace` にフォールバック方針がない**
+新しい機能なので、段階適用か、未対応環境での方針を書く。
+
+## 13. 責務分離
+
+日本語UIの品質は「文字を大きくする」「余白を増やす」ではなく、**役割ごとのルール分離**で決まる。
+
+### 本文
+
+本文は読むための器。呼吸が必要。
+
+- line-height: 広め（1.5-2.0、プロファイルによる）
+- letter-spacing: 控えめ（0 or normal）
+- overflow-wrap: `anywhere`
+- line-break: `strict`
+- 字間を足しても読みやすくはならない。苦しさは行間や折り返しで解消する
+
+### 見出し
+
+見出しは導線。強さとまとまりが必要。
+
+- line-height: 狭め（1.2-1.45、プロファイルによる）
+- letter-spacing: 0 or わずかにマイナス（-0.02em まで）
+- `palt` の適用可（短いテキストなので副作用が出にくい）
+- `word-break: auto-phrase` を検討（意味のまとまりで改行）
+- 本文と同じ spacing logic で設計すると、見出しが間延びするか本文が詰まる
+
+### 表
+
+表は走査性が命。本文ルールをそのまま使うと密度が合わない。
+
+- line-height: 本文より詰める（1.3-1.5）
+- font-size: 本文より小さくてよい（12-14px）
+- letter-spacing: 0
+- 数値は等幅フォント or `font-variant-numeric: tabular-nums`
+- カラムヘッダーのウェイトは 500-600
+- 本文に合わせた行間を表に持ち込むと、行が間延びして走査しにくくなる
+
+### フォーム
+
+フォームはラベルの可読性とタップ領域の確保が優先。
+
+- line-height: 1.4-1.5（本文より詰め）
+- ラベルの font-size: 本文と同等以上
+- エラーメッセージ: overflow-wrap: `anywhere`（URL等の長い文字列対策）
+- inputmode の適切な設定（tel, email, numeric）
+- 本文のルールを引きずると、フォーム全体が窮屈になるか間延びする
+
+### 分離の実装パターン
+
+```css
+/* 本文 */
+.prose, article p {
+  line-height: 1.8;
+  letter-spacing: normal;
+}
+
+/* 見出し */
+.prose h1, .prose h2, .prose h3 {
+  line-height: 1.35;
+  letter-spacing: 0;
+  font-feature-settings: "palt" 1;
+}
+
+/* 表 */
+table {
+  line-height: 1.4;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* フォーム */
+label, input, textarea, select {
+  line-height: 1.5;
+}
+```
+
+## 14. CSSレシピ
+
+修正提案時に使える再利用可能なCSS断片。プロジェクトのCSS手法（Tailwind / CSS Modules 等）に合わせて翻訳する。
+
+### ja-text — 日本語本文の基本
+
+```css
+html:lang(ja) {
+  line-break: strict;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  font-kerning: auto;
+  font-feature-settings: "chws" 1, "vchw" 1;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+/* 長文コンテンツの行長制限 */
+:where(article, .prose, .content) p {
+  max-width: 42em;
+}
+```
+
+### mixed-script — 和欧混植
+
+```css
+/* Progressive Enhancement: 対応ブラウザのみ */
+html:lang(ja) {
+  text-autospace: normal;
+}
+
+/* 見出しの意味単位改行 */
+:lang(ja) h1,
+:lang(ja) h2,
+:lang(ja) h3 {
+  word-break: auto-phrase;
+}
+
+/* mixed-script 要素の安全策 */
+:lang(ja) .product-name,
+:lang(ja) em,
+:lang(ja) strong {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+```
+
+### headings — 見出し体系
+
+```css
+:lang(ja) h1,
+:lang(ja) h2,
+:lang(ja) h3,
+:lang(ja) h4 {
+  line-break: strict;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  font-kerning: auto;
+  font-feature-settings: "palt" 1;
+}
+
+:lang(ja) h1 { line-height: 1.3; }
+:lang(ja) h2 { line-height: 1.35; }
+:lang(ja) h3 { line-height: 1.4; }
+```
+
+### forms — フォーム
+
+```css
+:lang(ja) label,
+:lang(ja) input,
+:lang(ja) textarea,
+:lang(ja) select,
+:lang(ja) button {
+  line-break: strict;
+  word-break: normal;
+}
+
+:lang(ja) input,
+:lang(ja) textarea,
+:lang(ja) select {
+  line-height: 1.5;
+}
+
+:lang(ja) .form-help,
+:lang(ja) .form-error {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+```
+
+### dark-mode — ダークモード補正
+
+```css
+@media (prefers-color-scheme: dark) {
+  :lang(ja) body {
+    /* 暗背景で文字が細く見えるため補正 */
+    -webkit-font-smoothing: auto; /* antialiased を外す */
+  }
+
+  :lang(ja) p,
+  :lang(ja) li,
+  :lang(ja) dd {
+    line-height: 1.9; /* ライトモードの 1.8 より +0.1 */
+  }
+
+  :lang(ja) body {
+    color: #E5E7EB; /* 純白ではなくやや灰色に */
+  }
+}

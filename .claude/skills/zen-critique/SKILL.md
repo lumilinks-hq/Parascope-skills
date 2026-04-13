@@ -51,6 +51,8 @@ argument-hint: "[対象ファイル or ページ]"
 
 ### Step 4: サイト全体のデザイン品質（critique 独自観点）
 
+まず対象サイトの用途を判定し、プロファイル（media / saas / docs / dashboard）を決める。プロファイルによって壊れやすい場所や注意点が変わる。
+
 以下のリファレンスを読み、日本語サイト全体の品質を評価する:
 
 - [日本語デザイン品質 リファレンス](reference/japanese-design-quality.md)
@@ -83,6 +85,14 @@ argument-hint: "[対象ファイル or ページ]"
 - `lang="ja"` の設定
 - アイコンボタンの `aria-label`
 - テキストのコントラスト比
+
+**壊れやすい場所チェック**（リファレンスのセクション8参照）
+- 本文と見出しが同じ line-height / letter-spacing で設計されていないか
+- 本文に過剰な letter-spacing が入っていないか
+- `word-break: break-all` が全体に適用されていないか
+- 表・フォームが本文ルールを引きずっていないか
+- mixed-script 見出しが崩れていないか
+- URL はみ出し対策が本文を壊していないか
 
 ### Step 5: 統合レポート
 

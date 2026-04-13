@@ -14,6 +14,8 @@ argument-hint: "[対象ファイル or コンポーネント名]"
 
 ### Step 1: 現状の読み取り
 
+まず対象サイトの用途を判定し、プロファイル（media / saas / docs / dashboard）を決める。プロファイルによって推奨値が変わる（リファレンスのセクション11を参照）。
+
 対象が指定されている場合はそのファイルを読む。指定がなければ以下を探す:
 
 1. グローバルCSS（`globals.css`, `global.css`, `app.css` 等）
@@ -88,6 +90,15 @@ argument-hint: "[対象ファイル or コンポーネント名]"
 - `font-display: swap` が設定されているか
 - 読み込むウェイト数が適切か（3以内推奨）
 - Next.js なら `next/font` を使っているか
+
+**Reject / Warn チェック**
+
+リファレンスのセクション12に基づき、以下を優先的にチェックする:
+
+- ❌ Reject: `word-break: break-all` の全体適用 / 本文に `letter-spacing: 0.05em` 以上 / 本文 `line-height` 1.5未満 / 日本語フォント未指定 / `palt` の本文全体適用 / 表・フォームが本文ルールをそのまま継承
+- ⚠️ Warn: `ch` 単位の行長 / 4ウェイト以上の読み込み / モバイル見出し折り返し未確認 / mixed-script 見出し未確認 / Windows描画未考慮
+
+Reject に該当する問題は最優先で報告する。
 
 ### Step 3: 報告
 
