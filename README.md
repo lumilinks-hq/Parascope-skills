@@ -1,8 +1,20 @@
+<p align="center">
+  <img src="./assets/zen-banner.png" alt="Zen — A Skills package for crafting beautiful interfaces, tuned for Japanese.">
+</p>
+
 # Zen
 
 Japanese Design Skills for AI Coding Agents.
 
-日本語に最適化された美しいインターフェースを作るための [Claude Code Skills](https://docs.anthropic.com/en/docs/claude-code/skills) パッケージ。
+Zen は、AI コーディングエージェントが生成する日本語サイト・アプリに、日本語固有のデザインルールを適用するための [Claude Code Skills](https://docs.anthropic.com/en/docs/claude-code/skills) パッケージです。英語圏のデフォルト（`line-height: 1.5`、65ch 行長、Inter 単体指定）をそのまま日本語に当てると破綻する問題を、明文化された判定基準で防ぎます。
+
+## Features
+
+- **日本語固有の判定ルール** — 英語圏では正解ですが日本語では破綻する定石を、Reject / Warn 条件として明示しています（R1–R6 / W1–W6）
+- **再現可能なスコアリング** — 判定基準を明文化し、評価者ごとのブレを最小化します（例: 「4 ウェイト以上」はファミリー横断合算、Critical 減点は複数該当でも -2 一度きり）
+- **3 スキルで責務分離** — 字組（typeset）/ 言語（clarify）/ 統合（critique）の 3 スキルで責務を分けています。独立に適用でき、critique では 3 スコアの平均で総合判定します
+- **プロファイル別推奨値** — media / saas / docs / dashboard で値が変わります。LP と業務 UI に同じ行間を強要しません
+- **AI エージェント向け設計** — Claude Code の subagent が SKILL.md を読んでそのまま実行できる構造になっています
 
 ## Install
 
