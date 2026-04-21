@@ -12,8 +12,10 @@
 
      改善ポイント:
        [タイポグラフィ — zen-typeset 領域]
-         ✓ Inter + Noto Sans JP + 游ゴシック Medium で和欧混植
-         ✓ line-height: 1.8（本文）
+         ✓ Noto Sans JP + 游ゴシック Medium（欧文も Noto Sans JP で描画）
+         ✓ 読み込みウェイトは 400 / 500 の 2 ウェイトのみ（W2 クリア）
+         ✓ 本文 line-height: 1.8、表・フォームは 1.5 で責務分離（R6 クリア）
+         ✓ 行長制限は長文コンテンツのみ。LP ヒーロー・CTA には適用しない
          ✓ Minor Third (1.2) モジュラースケール
          ✓ letter-spacing: 0（日本語のデフォルトが最適）
          ✓ font-weight: 500 中心（日本語は画数が多く 500 で十分）
@@ -43,8 +45,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskFlow — チームの生産性を最大化するプロジェクト管理ツール</title>
-  <!-- 改善: Noto Sans JP を追加、Inter と組み合わせて和欧混植 -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- 改善: 読み込みウェイトを 2 ウェイトに絞る（W2 クリア）。欧文も Noto Sans JP で描画 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
   <style>
     /* ============================================
        AFTER: 統合改善 CSS
@@ -113,12 +115,13 @@
       --color-warning-bg: #fffbeb;
     }
 
-    /* 改善: ダークモード対応 */
+    /* 改善: ダークモード対応。補助テキストのコントラストを AA クリアまで引き上げる */
     @media (prefers-color-scheme: dark) {
       :root {
         --color-text: #e2e8f0;
-        --color-text-secondary: #a0aec0;
-        --color-text-muted: #718096;
+        --color-text-secondary: #cbd5e0;
+        /* 改善: #718096 on #1a202c ≈ 4.0:1 → #a0aec0 で 5.1:1 に昇格して WCAG AA クリア */
+        --color-text-muted: #a0aec0;
         --color-border: #2d3748;
         --color-bg: #1a202c;
         --color-bg-subtle: #2d3748;
@@ -134,7 +137,7 @@
 
     body {
       /* 改善: Inter + Noto Sans JP + 游ゴシック Medium で和欧混植 */
-      font-family: "Inter", "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
+      font-family: "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
       /* 改善: 16px ベース（モジュラースケールの base） */
       font-size: var(--text-base);
       /* 改善: line-height 1.8（日本語の視覚密度に最適） */
@@ -185,7 +188,7 @@
       /* 改善: モジュラースケールに乗ったサイズ */
       font-size: var(--text-xl);
       /* 改善: 500 で十分な存在感 */
-      font-weight: 600;
+      font-weight: 500;
       color: var(--color-primary);
       /* 改善: 見出し用のプロポーショナル字詰め */
       font-feature-settings: "palt" 1;
@@ -242,7 +245,7 @@
       /* 改善: モジュラースケール text-3xl (≈33px) */
       font-size: var(--text-3xl);
       /* 改善: 見出しは 600。700 は太すぎる */
-      font-weight: 600;
+      font-weight: 500;
       color: var(--color-text);
       margin-bottom: var(--space-md);
       /* 改善: 見出しの行間は狭めに */
@@ -256,10 +259,7 @@
       font-size: var(--text-lg);
       color: var(--color-text-secondary);
       margin-bottom: var(--space-lg);
-      /* 改善: 行長制限。日本語は36em程度が読みやすい */
-      max-width: 36em;
-      margin-left: auto;
-      margin-right: auto;
+      /* 改善: LP ヒーロー短文には行長制限を適用しない。長文コンテンツ限定のルール */
     }
 
     .hero .cta-btn {
@@ -311,7 +311,7 @@
       /* 改善: モジュラースケール */
       font-size: var(--text-lg);
       /* 改善: 600 に統一 */
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: var(--space-xs);
       color: var(--color-text);
       line-height: 1.4;
@@ -336,7 +336,7 @@
 
     .bottom-cta h2 {
       font-size: var(--text-2xl);
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: var(--space-sm);
       line-height: 1.4;
       font-feature-settings: "palt" 1;
@@ -346,10 +346,7 @@
       font-size: var(--text-base);
       color: var(--color-text-secondary);
       margin-bottom: var(--space-md);
-      max-width: 36em;
-      margin-left: auto;
-      margin-right: auto;
-      margin-bottom: var(--space-md);
+      /* 改善: LP 下部 CTA にも行長制限は適用しない */
     }
 
     .bottom-cta .cta-btn {
@@ -399,7 +396,7 @@
 
     .login-box h2 {
       font-size: var(--text-xl);
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: var(--space-md);
       text-align: center;
       font-feature-settings: "palt" 1;
@@ -426,10 +423,12 @@
       border-radius: 8px;
       font-size: var(--text-base);
       /* 改善: 本文と同じフォントスタック */
-      font-family: "Inter", "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
+      font-family: "Noto Sans JP", "Yu Gothic Medium", "游ゴシック Medium", sans-serif;
       color: var(--color-text);
       background: var(--color-bg);
       transition: border-color 0.2s ease;
+      /* 改善: フォーム入力は本文の line-height 1.8 を継承せず 1.5 に分離（R6 クリア） */
+      line-height: 1.5;
     }
 
     .form-group input:focus {
@@ -581,7 +580,7 @@
 
     .main-content h2 {
       font-size: var(--text-2xl);
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: var(--space-md);
       line-height: 1.4;
       font-feature-settings: "palt" 1;
@@ -613,7 +612,7 @@
     .kpi-card .kpi-value {
       /* 改善: モジュラースケール */
       font-size: var(--text-2xl);
-      font-weight: 600;
+      font-weight: 500;
       color: var(--color-text);
       /* 改善: 等幅数字 */
       font-feature-settings: "tnum" 1;
@@ -639,17 +638,19 @@
       font-size: var(--text-xs);
       font-weight: 500;
       color: var(--color-text-muted);
-      /* 改善: 行の余白を拡大 */
       padding: 12px var(--space-sm);
       border-bottom: 2px solid var(--color-border);
+      /* 改善: 表は本文の line-height 1.8 を継承せず 1.5 に分離（R6 クリア） */
+      line-height: 1.5;
     }
 
     .data-table td {
       font-size: var(--text-sm);
-      /* 改善: 行の余白を拡大（10px → 14px） */
       padding: 14px var(--space-sm);
       border-bottom: 1px solid var(--color-border);
       color: var(--color-text);
+      /* 改善: 表セルは本文の line-height 1.8 を継承せず 1.5 に分離（R6 クリア） */
+      line-height: 1.5;
     }
 
     .data-table tr:hover {
@@ -717,7 +718,7 @@
 
     .confirm-dialog .dialog-title {
       font-size: var(--text-lg);
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: var(--space-xs);
       color: var(--color-text);
     }

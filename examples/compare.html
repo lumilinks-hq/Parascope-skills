@@ -65,19 +65,27 @@
   </div>
 
   <div class="toolbar">
-    <button class="tab active" onclick="show('typeset-lp', this)">Typeset: LP</button>
+    <button class="tab active" onclick="show('critique-saas', this)">Critique: SaaS複合</button>
+    <button class="tab" onclick="show('typeset-lp', this)">Typeset: LP</button>
     <button class="tab" onclick="show('typeset-blog', this)">Typeset: ブログ</button>
     <button class="tab" onclick="show('typeset-dash', this)">Typeset: ダッシュボード</button>
     <button class="tab" onclick="show('clarify-settings', this)">Clarify: 設定画面</button>
     <button class="tab" onclick="show('clarify-errors', this)">Clarify: エラー集</button>
-    <button class="tab" onclick="show('critique-saas', this)">Critique: SaaS複合</button>
     <div class="sep"></div>
     <button class="view-btn" onclick="setView('before', this)">Before のみ</button>
     <button class="view-btn active" onclick="setView('split', this)">並べて比較</button>
     <button class="view-btn" onclick="setView('after', this)">After のみ</button>
   </div>
 
-  <div class="compare-container active" id="typeset-lp">
+  <div class="compare-container active" id="critique-saas">
+    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-critique（3 スキル統合）</span></div>
+    <div class="frames">
+      <iframe src="critique-saas-before.html"></iframe>
+      <iframe src="critique-saas-after.html"></iframe>
+    </div>
+  </div>
+
+  <div class="compare-container" id="typeset-lp">
     <div class="labels"><span class="lb">Before</span><span class="la">After — zen-typeset</span></div>
     <div class="frames">
       <iframe src="before.html"></iframe>
@@ -114,14 +122,6 @@
     <div class="frames">
       <iframe src="clarify-errors-before.html"></iframe>
       <iframe src="clarify-errors-after.html"></iframe>
-    </div>
-  </div>
-
-  <div class="compare-container" id="critique-saas">
-    <div class="labels"><span class="lb">Before</span><span class="la">After — zen-critique</span></div>
-    <div class="frames">
-      <iframe src="critique-saas-before.html"></iframe>
-      <iframe src="critique-saas-after.html"></iframe>
     </div>
   </div>
 
