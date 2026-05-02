@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/zen-banner.png" alt="Parascope Skills — A collection of Claude Code skills for crafting beautiful interfaces, tuned for Japanese.">
+</p>
+
 # `/zen` — 日本語デザイン品質
 
 AI コーディングエージェントが生成する日本語サイト・アプリに、日本語固有のデザインルールを適用するスキル。英語圏のデフォルトをそのまま日本語に当てると破綻する問題を、明文化された判定基準で防ぎます。

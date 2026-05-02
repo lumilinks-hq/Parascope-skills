@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="./assets/zen-banner.png" alt="Parascope Skills — A collection of Claude Code skills for crafting beautiful interfaces, tuned for Japanese.">
-</p>
-
 # Parascope Skills
 
 [Parascope](https://parascope.design) が配布する [Claude Code](https://docs.anthropic.com/en/docs/claude-code/skills) 向けスキル集。
