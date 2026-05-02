@@ -4,13 +4,17 @@
 
 AI コーディングエージェント（Claude Code 等）が日本語のWebサイト・アプリケーションを構築する際に、英語圏のデザインルールをそのまま適用して起きる問題を防ぐ。
 
-## スキル一覧
+## スキル
 
-| スキル | 概要 | 状態 |
+`/zen` 単一スキル + 3 モード構成（v0.2.0）。依頼内容から自動ルーティング、`--mode` で明示指定可。
+
+| モード | 観点 | リファレンス |
 |---|---|---|
-| `/zen-typeset` | 日本語タイポグラフィの評価・改善 | ✅ v0.1.0 |
-| `/zen-clarify` | 日本語UIコピー・マイクロコピーの評価・改善 | ✅ v0.1.0 |
-| `/zen-critique` | 日本語デザイン品質の統合批評 | ✅ v0.1.0 |
+| `typeset` | 日本語タイポグラフィの評価・改善 | `.claude/skills/zen/references/typeset.md` |
+| `clarify` | 日本語UIコピー・マイクロコピーの評価・改善 | `.claude/skills/zen/references/clarify.md` |
+| `critique` | 日本語デザイン品質の統合批評（typeset + clarify + 横断品質） | `.claude/skills/zen/references/critique.md` |
+
+ドメイン知識は `.claude/skills/zen/references/japanese-{typography,ux-copy,design-quality}.md` に分離。
 
 ## インストール
 

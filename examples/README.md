@@ -1,19 +1,19 @@
-# Zen Skills — Before / After 比較デモ
+# Zen — Before / After 比較デモ
 
-Zen の 3 スキル（`zen-typeset` / `zen-clarify` / `zen-critique`）を適用する前と後で、日本語サイトの品質がどう変わるかを視覚的に比較するサンプル集。
+`/zen` の 3 モード（`typeset` / `clarify` / `critique`）を適用する前と後で、日本語サイトの品質がどう変わるかを視覚的に比較するサンプル集。
 
 ## 顔となる showcase
 
-**Critique SaaS 複合（`critique-saas-before.html` / `critique-saas-after.html`）** — 3 スキル統合の効果が最も伝わるデモ。SaaS「TaskFlow」の LP・ログイン画面・ダッシュボードを 1 ページにまとめ、タイポグラフィ・UIコピー・サイト全体の設計品質を横断的に改善している。
+**Critique SaaS 複合（`critique-saas-before.html` / `critique-saas-after.html`）** — `critique` モードで 3 観点を統合した効果が最も伝わるデモ。SaaS「TaskFlow」の LP・ログイン画面・ダッシュボードを 1 ページにまとめ、タイポグラフィ・UIコピー・サイト全体の設計品質を横断的に改善している。
 
 ```bash
 # ブラウザで比較ビューアを開く
 open examples/compare.html
 ```
 
-## 3 スキル観点の比較表
+## 3 モード観点の比較表
 
-### zen-typeset（タイポグラフィ）
+### typeset モード（タイポグラフィ）
 
 | 観点 | Before（スキルなし） | After（スキルあり） |
 |---|---|---|
@@ -27,7 +27,7 @@ open examples/compare.html
 | **約物** | なし | 見出し `palt`、和欧間 `chws`、数字 `tnum` |
 | **禁則処理** | なし | `line-break: strict; overflow-wrap: anywhere;` |
 
-### zen-clarify（UIコピー）
+### clarify モード（UIコピー）
 
 | 観点 | Before | After |
 |---|---|---|
@@ -39,7 +39,7 @@ open examples/compare.html
 | **空状態** | 「No data」 | 「まだデータがありません」＋ CTA「タスクを作成する」 |
 | **敬語** | 混在 | です／ます調で統一 |
 
-### zen-critique（サイト全体の設計品質）
+### critique モード（サイト全体の設計品質）
 
 | 観点 | Before | After |
 |---|---|---|
@@ -52,9 +52,9 @@ open examples/compare.html
 
 ## サンプル一覧
 
-| ペア | スキル | 題材 |
+| ペア | モード | 題材 |
 |---|---|---|
-| `critique-saas-before.html` / `critique-saas-after.html` | **critique（3 スキル統合）** | SaaS LP + ログイン + ダッシュボード |
+| `critique-saas-before.html` / `critique-saas-after.html` | **critique（3 観点統合）** | SaaS LP + ログイン + ダッシュボード |
 | `before.html` / `after.html` | typeset | SaaS ランディングページ（単体） |
 | `blog-before.html` / `blog-after.html` | typeset | ブログ記事（長文） |
 | `dashboard-before.html` / `dashboard-after.html` | typeset | 業務ダッシュボード |
